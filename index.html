@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TradingHub — Market Overview Dashboard</title>
+    <meta name="description"
+        content="Real-time market overview: Forex rates, Crypto prices, CSE Sri Lanka, live news and market sessions.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        darkbg: '#050b14',
+                        glass: 'rgba(17, 25, 40, 0.75)',
+                        glassborder: 'rgba(255,255,255,0.10)',
+                        primary: '#3b82f6',
+                        secondary: '#8b5cf6',
+                        accent: '#10b981',
+                        danger: '#ef4444',
+                        gold: '#f59e0b',
+                    },
+                    fontFamily: { sans: ['Inter', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        /* ── Ticker tape ─────────────────────────────── */
+        @keyframes ticker {
+            from {
+                transform: translateX(0)
+            }
+
+            to {
+                transform: translateX(-50%)
+            }
+        }
+
+        .ticker-inner {
+            display: flex;
+            animation: ticker 38s linear infinite;
+            white-space: nowrap;
+        }
+
+        .ticker-inner:hover {
+            animation-play-state: paused;
+        }
+
+        /* ── Glow pulses ─────────────────────────────── */
+        @keyframes pulseGlow {
+
+            0%,
+            100% {
+                opacity: .5;
+                transform: scale(1)
+            }
+
+            50% {
+                opacity: 1;
+                transform: scale(1.15)
+            }
+        }
+
+        .pulse-dot {
+            animation: pulseGlow 1.6s ease-in-out infinite;
+        }
+
+        /* ── Fade up ─────────────────────────────────── */
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px)
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0)
+            }
+        }
+
+        .fade-up {
+            animation: fadeUp .45s ease forwards;
+        }
+
+        .fade-up-2 {
+            animation: fadeUp .45s ease .1s both;
+        }
+
+        .fade-up-3 {
+            animation: fadeUp .45s ease .2s both;
+        }
+
+        /* ── Stat card hover ─────────────────────────── */
+        .stat-card {
+            transition: transform .2s, box-shadow .2s, border-color .2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+        }
+
+        /* ── Price flash ─────────────────────────────── */
+        @keyframes flashG {
+            0% {
+                background: rgba(16, 185, 129, .2)
+            }
+
+            100% {
+                background: transparent
+            }
+        }
+
+        @keyframes flashR {
+            0% {
+                background: rgba(239, 68, 68, .2)
+            }
+
+            100% {
+                background: transparent
+            }
+        }
+
+        .flash-g {
+            animation: flashG .7s ease;
+        }
+
+        .flash-r {
+            animation: flashR .7s ease;
+        }
+
+        /* ── Session badges ─────────────────────────── */
+        .sess-open {
+            border-color: rgba(16, 185, 129, .4) !important;
+            background: rgba(16, 185, 129, .07) !important;
+        }
+
+        .sess-closed {
+            opacity: .55;
+        }
+
+        /* ── Scrollbar hidden ────────────────────────── */
+        .no-scroll::-webkit-scrollbar {
+            display: none;
+        }
+
+        .no-scroll {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* ── Skeleton shimmer ────────────────────────── */
+        @keyframes shimmer {
+            from {
+                background-position: -400px 0
+            }
+
+            to {
+                background-position: 400px 0
+            }
+        }
+
+        .skeleton {
+            background: linear-gradient(90deg, rgba(255, 255, 255, .04) 25%, rgba(255, 255, 255, .09) 50%, rgba(255, 255, 255, .04) 75%);
+            background-size: 400px 100%;
+            animation: shimmer 1.4s infinite;
+            border-radius: 8px;
+        }
+
+        /* ── Mini spark SVG ──────────────────────────── */
+        .spark-up polyline {
+            stroke: #10b981;
+        }
+
+        .spark-down polyline {
+            stroke: #ef4444;
+        }
+    </style>
+</head>
+
+<body class="bg-darkbg text-gray-200 font-sans antialiased overflow-x-hidden">
+
+    <!-- Background Glows -->
+    <div class="fixed inset-0 z-[-1] pointer-events-none overflow-hidden">
+        <div class="absolute top-[-12%] left-[-8%]  w-[42%] h-[42%] rounded-full bg-primary/10 blur-[130px]"></div>
+        <div class="absolute bottom-[-12%] right-[-8%] w-[38%] h-[38%] rounded-full bg-secondary/10 blur-[130px]"></div>
+        <div class="absolute top-[45%] left-[40%] w-[22%] h-[22%] rounded-full bg-accent/6 blur-[100px]"></div>
+    </div>
+
+    <div class="flex h-screen overflow-hidden">
+
+        <!-- ── Sidebar ── -->
+        <aside class="w-64 glass-panel border-r border-glassborder flex flex-col hidden md:flex shrink-0">
+            <div class="p-6 flex items-center gap-3 border-b border-glassborder">
+                <div
+                    class="w-10 h-10 rounded-xl bg-gradient-to-tr from-primary to-secondary flex items-center justify-center shadow-lg shadow-primary/30">
+                    <i class="fa-solid fa-chart-line text-white"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-extrabold text-white tracking-tight">TradingHub</h1>
+                    <p class="text-[10px] text-gray-500">Pro Dashboard</p>
+                </div>
+            </div>
+
+            <nav class="flex-1 px-4 py-5 space-y-1 overflow-y-auto no-scroll">
+                <p class="px-3 text-[10px] font-bold text-gray-600 uppercase tracking-widest mb-3">Dashboards</p>
+                <a href="index.html"
+                    class="nav-item active flex items-center gap-3 px-4 py-2.5 rounded-xl text-white bg-primary/15 border border-primary/25">
+                    <i class="fa-solid fa-house text-primary text-sm"></i><span
+                        class="text-sm font-semibold">Overview</span>
+                </a>
+                <a href="forex.html"
+                    class="nav-item flex items-center gap-3 px-4 py-2.5 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition-all">
+                    <i class="fa-solid fa-globe text-sm"></i><span class="text-sm">Forex &amp; Global</span>
+                </a>
+                <a href="cse.html"
+                    class="nav-item flex items-center gap-3 px-4 py-2.5 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition-all">
+                    <i class="fa-solid fa-building text-sm"></i><span class="text-sm">CSE Market (LK)</span>
+                </a>
+
+                <p class="px-3 text-[10px] font-bold text-gray-600 uppercase tracking-widest mt-6 mb-3">AI Tools</p>
+                <a href="ai-invest.html"
+                    class="nav-item flex items-center gap-3 px-4 py-2.5 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition-all">
+                    <i class="fa-solid fa-robot text-secondary text-sm"></i><span class="text-sm">AI Crypto Picks</span>
+                </a>
+                <a href="ai-forex.html"
+                    class="nav-item flex items-center gap-3 px-4 py-2.5 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition-all">
+                    <i class="fa-solid fa-bolt text-danger text-sm"></i><span class="text-sm">AI FX Signals</span>
+                </a>
+
+                <p class="px-3 text-[10px] font-bold text-gray-600 uppercase tracking-widest mt-6 mb-3">Tools</p>
+                <a href="news.html"
+                    class="nav-item flex items-center gap-3 px-4 py-2.5 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition-all">
+                    <i class="fa-solid fa-newspaper text-sm"></i><span class="text-sm">News Feed</span>
+                </a>
+                <a href="calculators.html"
+                    class="nav-item flex items-center gap-3 px-4 py-2.5 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition-all">
+                    <i class="fa-solid fa-calculator text-sm"></i><span class="text-sm">Calculators</span>
+                </a>
+
+                <p class="px-3 text-[10px] font-bold text-gray-600 uppercase tracking-widest mt-6 mb-3">Services</p>
+                <a href="manage.html"
+                    class="nav-item flex items-center gap-3 px-4 py-2.5 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition-all">
+                    <i class="fa-solid fa-briefcase text-sm" style="color:#f59e0b"></i><span class="text-sm">Account
+                        Management</span>
+                    <span
+                        class="ml-auto text-[9px] bg-gold/20 text-gold px-1.5 py-0.5 rounded-full border border-gold/30">50/50</span>
+                </a>
+            </nav>
+
+            <!-- System Status + User Profile -->
+            <div class="p-4 border-t border-glassborder space-y-2">
+                <!-- Live status -->
+                <div class="flex items-center gap-2 px-3 py-2">
+                    <span class="pulse-dot w-2 h-2 rounded-full bg-accent inline-block"></span>
+                    <div>
+                        <p class="text-xs font-semibold text-accent">Live Data Active</p>
+                        <p id="sidebarClock" class="text-[10px] text-gray-500 font-mono">--:--:--</p>
+                    </div>
+                </div>
+                <!-- User profile (populated by auth.js) -->
+                <div id="userProfileSlot">
+                    <div class="flex items-center gap-2 px-3 py-2 text-gray-600 text-xs">
+                        <i class="fa-solid fa-spinner fa-spin"></i> Loading...
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- ── Main ── -->
+        <main class="flex-1 flex flex-col h-screen overflow-hidden">
+
+            <!-- Mobile Header -->
+            <header
+                class="md:hidden glass-panel border-b border-glassborder p-4 flex items-center justify-between z-10 shrink-0">
+                <div class="flex items-center gap-2">
+                    <div
+                        class="w-8 h-8 rounded-lg bg-gradient-to-tr from-primary to-secondary flex items-center justify-center">
+                        <i class="fa-solid fa-chart-line text-white text-sm"></i>
+                    </div>
+                    <span class="text-lg font-bold text-white">TradingHub</span>
+                </div>
+                <button id="mobileMenuBtn" class="text-gray-300 hover:text-white"><i
+                        class="fa-solid fa-bars text-xl"></i></button>
+            </header>
+
+            <!-- Ticker Tape -->
+            <div
+                class="h-9 border-b border-glassborder bg-black/50 backdrop-blur-md shrink-0 overflow-hidden flex items-center">
+                <span
+                    class="px-3 text-[10px] font-bold text-gray-500 uppercase tracking-wider border-r border-glassborder shrink-0 hidden sm:block">LIVE</span>
+                <div class="flex-1 overflow-hidden">
+                    <div class="ticker-inner text-xs font-medium gap-6 flex items-center" id="globalTicker">
+                        <span class="text-gray-500 italic">Loading market data...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Scroll Content -->
+            <div class="flex-1 overflow-y-auto p-4 md:p-6 no-scroll">
+
+                <!-- ── Page Header ── -->
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+                    <div>
+                        <h2 class="text-2xl md:text-3xl font-black text-white tracking-tight">Market Overview</h2>
+                        <p class="text-gray-500 text-sm mt-0.5">Real-time global &amp; Sri Lankan market intelligence
+                        </p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="pulse-dot w-2 h-2 rounded-full bg-accent"></span>
+                        <span class="text-xs text-gray-400 font-mono" id="lastUpdatedTime">Live</span>
+                        <span
+                            class="text-xs bg-accent/10 text-accent px-2 py-1 rounded-lg border border-accent/20 font-semibold">Auto-refresh</span>
+                    </div>
+                </div>
+
+                <!-- ── Market Session Strip ── -->
+                <div class="flex gap-3 overflow-x-auto no-scroll pb-1 mb-6" id="sessionStrip">
+                    <!-- JS populated -->
+                </div>
+
+                <!-- ── Stat Cards Row ── -->
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6" id="statCards">
+                    <!-- BTC -->
+                    <div
+                        class="stat-card glass-card rounded-2xl border border-glassborder p-4 relative overflow-hidden">
+                        <div
+                            class="absolute -top-4 -right-4 w-20 h-20 rounded-full bg-yellow-500/10 blur-2xl pointer-events-none">
+                        </div>
+                        <div class="flex items-center justify-between mb-3">
+                            <div
+                                class="w-9 h-9 rounded-xl bg-yellow-500/15 border border-yellow-500/25 flex items-center justify-center">
+                                <i class="fa-brands fa-bitcoin text-yellow-400 text-lg"></i>
+                            </div>
+                            <span id="btcPct"
+                                class="text-xs font-bold px-2 py-0.5 rounded-full bg-gray-700/50 text-gray-400">—</span>
+                        </div>
+                        <p class="text-xs text-gray-500 mb-0.5">Bitcoin</p>
+                        <p class="text-xl font-black text-white" id="btcPrice">Loading...</p>
+                    </div>
+                    <!-- ETH -->
+                    <div
+                        class="stat-card glass-card rounded-2xl border border-glassborder p-4 relative overflow-hidden">
+                        <div
+                            class="absolute -top-4 -right-4 w-20 h-20 rounded-full bg-indigo-500/10 blur-2xl pointer-events-none">
+                        </div>
+                        <div class="flex items-center justify-between mb-3">
+                            <div
+                                class="w-9 h-9 rounded-xl bg-indigo-500/15 border border-indigo-500/25 flex items-center justify-center">
+                                <i class="fa-brands fa-ethereum text-indigo-400 text-lg"></i>
+                            </div>
+                            <span id="ethPct"
+                                class="text-xs font-bold px-2 py-0.5 rounded-full bg-gray-700/50 text-gray-400">—</span>
+                        </div>
+                        <p class="text-xs text-gray-500 mb-0.5">Ethereum</p>
+                        <p class="text-xl font-black text-white" id="ethPrice">Loading...</p>
+                    </div>
+                    <!-- EUR/USD -->
+                    <div
+                        class="stat-card glass-card rounded-2xl border border-glassborder p-4 relative overflow-hidden">
+                        <div
+                            class="absolute -top-4 -right-4 w-20 h-20 rounded-full bg-primary/10 blur-2xl pointer-events-none">
+                        </div>
+                        <div class="flex items-center justify-between mb-3">
+                            <div
+                                class="w-9 h-9 rounded-xl bg-primary/15 border border-primary/25 flex items-center justify-center">
+                                <span class="text-primary font-black text-xs">FX</span>
+                            </div>
+                            <span
+                                class="text-xs font-semibold text-gray-500 bg-black/30 px-2 py-0.5 rounded-full">EUR/USD</span>
+                        </div>
+                        <p class="text-xs text-gray-500 mb-0.5">Euro / US Dollar</p>
+                        <p class="text-xl font-black text-white" id="eurusdPrice">Loading...</p>
+                    </div>
+                    <!-- USD/LKR -->
+                    <div
+                        class="stat-card glass-card rounded-2xl border border-glassborder p-4 relative overflow-hidden">
+                        <div
+                            class="absolute -top-4 -right-4 w-20 h-20 rounded-full bg-accent/10 blur-2xl pointer-events-none">
+                        </div>
+                        <div class="flex items-center justify-between mb-3">
+                            <div
+                                class="w-9 h-9 rounded-xl bg-accent/15 border border-accent/25 flex items-center justify-center">
+                                <span class="text-accent font-black text-xs">LK</span>
+                            </div>
+                            <span
+                                class="text-xs font-semibold text-gray-500 bg-black/30 px-2 py-0.5 rounded-full">USD/LKR</span>
+                        </div>
+                        <p class="text-xs text-gray-500 mb-0.5">Sri Lankan Rupee</p>
+                        <p class="text-xl font-black text-white" id="lkrPrice">Loading...</p>
+                    </div>
+                </div>
+
+                <!-- ── Main 3-Column Grid ── -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-6">
+
+                    <!-- Forex Widget (col 1) -->
+                    <div class="glass-card rounded-2xl border border-glassborder overflow-hidden flex flex-col">
+                        <div class="flex items-center justify-between px-5 py-4 border-b border-glassborder">
+                            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-globe text-primary text-xs"></i> Major Forex Rates
+                            </h3>
+                            <a href="forex.html"
+                                class="text-[11px] text-primary hover:text-blue-300 transition-colors">All →</a>
+                        </div>
+                        <div class="flex-1 divide-y divide-glassborder" id="forexWidgetCont">
+                            <div class="p-5 flex items-center justify-center gap-2 text-gray-600 text-sm">
+                                <i class="fa-solid fa-spinner fa-spin text-primary"></i> Loading...
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Crypto Widget (col 2) -->
+                    <div class="glass-card rounded-2xl border border-glassborder overflow-hidden flex flex-col">
+                        <div class="flex items-center justify-between px-5 py-4 border-b border-glassborder">
+                            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                                <i class="fa-brands fa-bitcoin text-yellow-400 text-xs"></i> Top Crypto
+                            </h3>
+                            <span
+                                class="text-[10px] bg-accent/15 text-accent border border-accent/30 px-2 py-0.5 rounded-full font-bold">LIVE</span>
+                        </div>
+                        <div class="flex-1 divide-y divide-glassborder" id="cryptoWidgetCont">
+                            <div class="p-5 flex items-center justify-center gap-2 text-gray-600 text-sm">
+                                <i class="fa-solid fa-spinner fa-spin text-accent"></i> Loading...
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CSE Widget (col 3) -->
+                    <div class="glass-card rounded-2xl border border-glassborder overflow-hidden flex flex-col">
+                        <div class="flex items-center justify-between px-5 py-4 border-b border-glassborder">
+                            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                                <span class="text-xs">🇱🇰</span> Colombo Stock Exchange
+                            </h3>
+                            <a href="cse.html"
+                                class="text-[11px] text-secondary hover:text-purple-300 transition-colors">CSE →</a>
+                        </div>
+                        <div class="flex-1 p-4" id="cseWidgetCont">
+                            <div class="flex items-center justify-center gap-2 text-gray-600 text-sm h-24">
+                                <i class="fa-solid fa-spinner fa-spin text-secondary"></i> Loading...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── News Grid ── -->
+                <div class="mb-2">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-base font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-newspaper text-secondary text-sm"></i> Latest Market News
+                        </h3>
+                        <a href="news.html" class="text-xs text-primary hover:text-blue-300 transition-colors">View all
+                            →</a>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" id="newsWidgetCont">
+                        <!-- skeleton -->
+                        <div class="skeleton h-36 rounded-xl"></div>
+                        <div class="skeleton h-36 rounded-xl"></div>
+                        <div class="skeleton h-36 rounded-xl"></div>
+                        <div class="skeleton h-36 rounded-xl"></div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Mobile Nav -->
+    <div id="mobileNav"
+        class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden opacity-0 transition-opacity duration-300">
+        <div class="flex flex-col h-full right-0 w-64 bg-glass border-l border-glassborder ml-auto shadow-2xl transform translate-x-full transition-transform duration-300"
+            id="mobileNavMenu">
+            <div class="p-4 border-b border-glassborder flex justify-between items-center">
+                <h2 class="font-bold text-white tracking-wider">MENU</h2>
+                <button id="closeMobileNav" class="text-gray-400 hover:text-white"><i
+                        class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            <nav class="p-4 flex flex-col gap-1.5">
+                <a href="index.html"
+                    class="px-4 py-2.5 rounded-xl bg-primary/15 text-white font-semibold text-sm">Overview</a>
+                <a href="forex.html"
+                    class="px-4 py-2.5 rounded-xl text-gray-400 hover:bg-white/5 hover:text-white text-sm">Forex &amp;
+                    Global</a>
+                <a href="cse.html"
+                    class="px-4 py-2.5 rounded-xl text-gray-400 hover:bg-white/5 hover:text-white text-sm">CSE Market
+                    (LK)</a>
+                <a href="ai-invest.html"
+                    class="px-4 py-2.5 rounded-xl text-gray-400 hover:bg-white/5 hover:text-white text-sm">AI Crypto
+                    Picks</a>
+                <a href="ai-forex.html"
+                    class="px-4 py-2.5 rounded-xl text-gray-400 hover:bg-white/5 hover:text-white text-sm">AI FX
+                    Signals</a>
+                <a href="news.html"
+                    class="px-4 py-2.5 rounded-xl text-gray-400 hover:bg-white/5 hover:text-white text-sm">News Feed</a>
+                <a href="calculators.html"
+                    class="px-4 py-2.5 rounded-xl text-gray-400 hover:bg-white/5 hover:text-white text-sm">Calculators</a>
+                <a href="manage.html"
+                    class="px-4 py-2.5 rounded-xl text-gray-400 hover:bg-white/5 hover:text-white text-sm">Account
+                    Management</a>
+            </nav>
+        </div>
+    </div>
+
+    <script type="module" src="assets/js/auth.js"></script>
+    <script src="assets/js/api.js"></script>
+    <script src="assets/js/main.js"></script>
+    <script src="assets/js/dashboard.js"></script>
+</body>
+
+</html>

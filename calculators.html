@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculators - TradingHub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        darkbg: '#050b14',
+                        glass: 'rgba(17, 25, 40, 0.75)',
+                        glassborder: 'rgba(255, 255, 255, 0.125)',
+                        primary: '#3b82f6',
+                        secondary: '#8b5cf6',
+                        accent: '#10b981',
+                        danger: '#ef4444',
+                        warning: '#f59e0b',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    animation: {
+                        'gradient-x': 'gradient-x 15s ease infinite',
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        'gradient-x': {
+                            '0%, 100%': {
+                                'background-size': '200% 200%',
+                                'background-position': 'left center'
+                            },
+                            '50%': {
+                                'background-size': '200% 200%',
+                                'background-position': 'right center'
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+
+<body class="bg-darkbg text-gray-200 font-sans antialiased overflow-x-hidden">
+    <!-- Background Effects -->
+    <div class="fixed inset-0 z-[-1] overflow-hidden pointer-events-none">
+        <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-primary/20 blur-[120px]"></div>
+        <div class="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-warning/20 blur-[120px]"></div>
+    </div>
+
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <aside
+            class="w-64 glass-panel border-r border-glassborder flex flex-col hidden md:flex transition-all duration-300">
+            <div class="p-6 flex items-center gap-3">
+                <div
+                    class="w-10 h-10 rounded-xl bg-gradient-to-tr from-primary to-secondary flex items-center justify-center shadow-lg shadow-primary/30">
+                    <i class="fa-solid fa-chart-line text-white"></i>
+                </div>
+                <h1 class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
+                    TradingHub</h1>
+            </div>
+
+            <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto hidden-scrollbar">
+                <p class="px-2 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">Dashboards</p>
+                <a href="index.html"
+                    class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition-all">
+                    <i class="fa-solid fa-house text-gray-400 group-hover:text-primary"></i>
+                    <span>Overview</span>
+                </a>
+                <a href="forex.html"
+                    class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition-all">
+                    <i class="fa-solid fa-globe text-gray-400 group-hover:text-primary"></i>
+                    <span>Forex & Global</span>
+                </a>
+                <a href="cse.html"
+                    class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition-all">
+                    <i class="fa-solid fa-building text-gray-400 group-hover:text-primary"></i>
+                    <span>CSE Market (LK)</span>
+                </a>
+
+                <p class="px-2 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4 mt-8">AI Tools</p>
+                <a href="ai-invest.html"
+                    class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition-all">
+                    <i class="fa-solid fa-robot text-gray-400 group-hover:text-secondary"></i>
+                    <span>AI Crypto Picks</span>
+                </a>
+                <a href="ai-forex.html"
+                    class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition-all">
+                    <i class="fa-solid fa-bolt text-danger group-hover:text-danger"></i>
+                    <span>AI FX Signals</span>
+                </a>
+
+                <p class="px-2 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4 mt-8">Tools</p>
+                <a href="news.html"
+                    class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition-all">
+                    <i class="fa-solid fa-newspaper text-gray-400 group-hover:text-primary"></i>
+                    <span>News Feed</span>
+                </a>
+                <a href="calculators.html"
+                    class="nav-item active flex items-center gap-3 px-4 py-3 rounded-xl text-white bg-white/10 border border-white/5 transition-all">
+                    <i class="fa-solid fa-calculator text-primary"></i>
+                    <span>Calculators</span>
+                </a>
+            </nav>
+
+            <div class="p-4 mt-auto border-t border-glassborder">
+                <div class="flex items-center gap-3 px-4 py-3">
+                    <div
+                        class="w-8 h-8 rounded-full bg-gradient-to-r from-emerald-400 to-emerald-600 flex items-center justify-center">
+                        <i class="fa-solid fa-bolt text-xs text-white"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-emerald-400 font-medium">System Online</p>
+                        <p class="text-[10px] text-gray-500">Auto-updating</p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 flex flex-col h-screen overflow-hidden relative">
+
+            <!-- Mobile Header -->
+            <header
+                class="md:hidden glass-panel border-b border-glassborder p-4 flex items-center justify-between z-10">
+                <div class="flex items-center gap-2">
+                    <div
+                        class="w-8 h-8 rounded-lg bg-gradient-to-tr from-primary to-secondary flex items-center justify-center">
+                        <i class="fa-solid fa-chart-line text-white text-sm"></i>
+                    </div>
+                    <h1 class="text-lg font-bold text-white">TradingHub</h1>
+                </div>
+                <button class="text-gray-300 hover:text-white" id="mobileMenuBtn">
+                    <i class="fa-solid fa-bars text-xl"></i>
+                </button>
+            </header>
+
+            <div class="flex-1 overflow-y-auto p-4 md:p-8 hidden-scrollbar relative z-0">
+
+                <div class="flex justify-between items-end mb-8">
+                    <div>
+                        <h2 class="text-3xl font-bold text-white mb-2 tracking-tight">Trading Calculators</h2>
+                        <p class="text-gray-400 text-sm">Essential tools for risk management and trade planning.</p>
+                    </div>
+                </div>
+
+                <!-- Calculators Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+
+                    <!-- Position Size Calculator -->
+                    <div
+                        class="glass-card rounded-2xl p-6 border border-glassborder relative overflow-hidden group hover:border-primary/50 transition-all duration-300">
+                        <div
+                            class="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-2xl group-hover:bg-primary/20 transition-all pointer-events-none">
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-scale-balanced text-primary"></i> Position Size
+                        </h3>
+
+                        <div class="space-y-4 relative z-10">
+                            <div>
+                                <label
+                                    class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Account
+                                    Balance ($)</label>
+                                <input type="number" id="posAccBalance"
+                                    class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all font-medium"
+                                    placeholder="10000" value="10000">
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label
+                                        class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Risk
+                                        %</label>
+                                    <input type="number" id="posRiskPct"
+                                        class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all font-medium"
+                                        placeholder="1" value="1">
+                                </div>
+                                <div>
+                                    <label
+                                        class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Stop
+                                        Loss (Pips)</label>
+                                    <input type="number" id="posStopLoss"
+                                        class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all font-medium"
+                                        placeholder="20" value="20">
+                                </div>
+                            </div>
+                            <div>
+                                <label
+                                    class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Currency
+                                    Pair Type</label>
+                                <select id="posPairType"
+                                    class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary/50 shadow-inner appearance-none transition-all">
+                                    <option value="10">Standard (e.g. EURUSD, GBPUSD)</option>
+                                    <option value="1000">JPY Pairs (e.g. USDJPY, EURJPY)</option>
+                                    <option value="1">Indices / Metals (varies)</option>
+                                </select>
+                            </div>
+
+                            <button id="calcPositionBtn"
+                                class="w-full bg-gradient-to-r from-primary to-blue-600 hover:from-primary hover:to-blue-500 text-white font-bold py-3 rounded-xl shadow-lg shadow-primary/25 transition-all transform hover:-translate-y-0.5 mt-2">
+                                Calculate Position Size
+                            </button>
+
+                            <div class="pt-4 border-t border-glassborder mt-4">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-gray-400 text-sm">Risk Amount:</span>
+                                    <span class="text-danger font-bold text-lg" id="posResultRisk">$100.00</span>
+                                </div>
+                                <div
+                                    class="flex justify-between items-center bg-primary/10 p-4 rounded-xl border border-primary/20">
+                                    <span class="text-white font-semibold">Recommended Lot:</span>
+                                    <span class="text-primary font-bold text-2xl" id="posResultLot">0.50</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Margin Calculator -->
+                    <div
+                        class="glass-card rounded-2xl p-6 border border-glassborder relative overflow-hidden group hover:border-warning/50 transition-all duration-300">
+                        <div
+                            class="absolute top-0 right-0 w-32 h-32 bg-warning/10 rounded-full blur-2xl group-hover:bg-warning/20 transition-all pointer-events-none">
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-percent text-warning"></i> Margin Calculator
+                        </h3>
+
+                        <div class="space-y-4 relative z-10">
+                            <div>
+                                <label
+                                    class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Leverage</label>
+                                <select id="margLeverage"
+                                    class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-warning/50 shadow-inner appearance-none transition-all">
+                                    <option value="1">1:1</option>
+                                    <option value="50">1:50</option>
+                                    <option value="100" selected>1:100</option>
+                                    <option value="200">1:200</option>
+                                    <option value="400">1:400</option>
+                                    <option value="500">1:500</option>
+                                    <option value="1000">1:1000</option>
+                                </select>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label
+                                        class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Lot
+                                        Size</label>
+                                    <input type="number" id="margLotSize"
+                                        class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-warning/50 focus:ring-1 focus:ring-warning/50 transition-all font-medium"
+                                        placeholder="1.00" value="1.00" step="0.01">
+                                </div>
+                                <div>
+                                    <label
+                                        class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Current
+                                        Price</label>
+                                    <input type="number" id="margPrice"
+                                        class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-warning/50 focus:ring-1 focus:ring-warning/50 transition-all font-medium"
+                                        placeholder="1.0500" value="1.0500" step="0.0001">
+                                </div>
+                            </div>
+                            <div>
+                                <label
+                                    class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Contract
+                                    Size</label>
+                                <input type="number" id="margContract"
+                                    class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-warning/50 focus:ring-1 focus:ring-warning/50 transition-all font-medium"
+                                    placeholder="100000" value="100000">
+                                <p class="text-[10px] text-gray-500 mt-1">Standard = 100,000 | Mini = 10,000</p>
+                            </div>
+
+                            <button id="calcMarginBtn"
+                                class="w-full bg-gradient-to-r from-warning to-yellow-600 hover:from-warning hover:to-yellow-500 text-white font-bold py-3 rounded-xl shadow-lg shadow-warning/25 transition-all transform hover:-translate-y-0.5 mt-2">
+                                Calculate Margin
+                            </button>
+
+                            <div class="pt-4 border-t border-glassborder mt-4">
+                                <div
+                                    class="flex justify-between items-center bg-warning/10 p-4 rounded-xl border border-warning/20">
+                                    <span class="text-white font-semibold">Required Margin:</span>
+                                    <span class="text-warning font-bold text-2xl" id="margResult">$1050.00</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Risk Reward / Profit Loss -->
+                    <div
+                        class="glass-card rounded-2xl p-6 border border-glassborder relative overflow-hidden group hover:border-accent/50 transition-all duration-300 md:col-span-2">
+                        <div
+                            class="absolute top-0 left-0 w-64 h-64 bg-accent/5 rounded-full blur-3xl group-hover:bg-accent/10 transition-all pointer-events-none">
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-bullseye text-accent"></i> Risk / Reward & Profit
+                        </h3>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 relative z-10">
+                            <div class="space-y-4">
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label
+                                            class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Entry
+                                            Price</label>
+                                        <input type="number" id="rrEntry"
+                                            class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/50 transition-all font-medium"
+                                            placeholder="1.0500" step="0.0001">
+                                    </div>
+                                    <div>
+                                        <label
+                                            class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Position
+                                            Type</label>
+                                        <select id="rrType"
+                                            class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-accent/50 shadow-inner appearance-none transition-all">
+                                            <option value="buy">Buy (Long)</option>
+                                            <option value="sell">Sell (Short)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label
+                                            class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Stop
+                                            Loss (Price)</label>
+                                        <input type="number" id="rrStop"
+                                            class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/50 transition-all font-medium"
+                                            placeholder="1.0450" step="0.0001">
+                                    </div>
+                                    <div>
+                                        <label
+                                            class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Take
+                                            Profit (Price)</label>
+                                        <input type="number" id="rrTarget"
+                                            class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/50 transition-all font-medium"
+                                            placeholder="1.0650" step="0.0001">
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label
+                                            class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Lot
+                                            Size</label>
+                                        <input type="number" id="rrLotSize"
+                                            class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/50 transition-all font-medium"
+                                            placeholder="1.00" value="1.00" step="0.01">
+                                    </div>
+                                    <div>
+                                        <label
+                                            class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Pip
+                                            Value ($)</label>
+                                        <input type="number" id="rrPipValue"
+                                            class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/50 transition-all font-medium"
+                                            placeholder="10" value="10">
+                                    </div>
+                                </div>
+
+                                <button id="calcRRBtn"
+                                    class="w-full bg-gradient-to-r from-accent to-emerald-600 hover:from-accent hover:to-emerald-500 text-white font-bold py-3 rounded-xl shadow-lg shadow-accent/25 transition-all transform hover:-translate-y-0.5 mt-2">
+                                    Calculate Projections
+                                </button>
+                            </div>
+
+                            <div
+                                class="bg-black/20 p-6 rounded-2xl border border-white/5 flex flex-col justify-center space-y-4">
+                                <div class="flex justify-between items-center pb-3 border-b border-white/10">
+                                    <span class="text-gray-400">Risk : Reward Ratio</span>
+                                    <span class="text-white font-bold text-xl" id="rrRatioText">1 : 0.0</span>
+                                </div>
+                                <div class="flex justify-between items-center pb-3 border-b border-white/10">
+                                    <span class="text-gray-400">Pips at Risk</span>
+                                    <span class="text-danger font-bold text-lg" id="rrRiskPips">0.0</span>
+                                </div>
+                                <div class="flex justify-between items-center pb-3 border-b border-white/10">
+                                    <span class="text-gray-400">Target Pips</span>
+                                    <span class="text-accent font-bold text-lg" id="rrTargetPips">0.0</span>
+                                </div>
+                                <div class="flex justify-between items-center pb-3 border-b border-white/10">
+                                    <span class="text-gray-400">Potential Loss</span>
+                                    <span class="text-danger font-bold text-lg" id="rrLossAmt">$0.00</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-400">Potential Profit</span>
+                                    <span class="text-accent font-bold text-2xl" id="rrProfitAmt">$0.00</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Mobile Navigation Overlay (Hidden by default) -->
+    <div id="mobileNav"
+        class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden opacity-0 transition-opacity duration-300">
+        <div class="flex flex-col h-full right-0 w-64 bg-glass border-l border-glassborder ml-auto shadow-2xl transform translate-x-full transition-transform duration-300"
+            id="mobileNavMenu">
+            <div class="p-4 border-b border-glassborder flex justify-between items-center">
+                <h2 class="font-bold text-white tracking-wider">MENU</h2>
+                <button id="closeMobileNav" class="text-gray-400 hover:text-white">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+            <nav class="p-4 flex flex-col gap-2">
+                <a href="index.html"
+                    class="px-4 py-3 rounded-xl text-gray-400 hover:bg-white/5 hover:text-white">Overview</a>
+                <a href="forex.html" class="px-4 py-3 rounded-xl text-gray-400 hover:bg-white/5 hover:text-white">Forex
+                    & Global</a>
+                <a href="cse.html" class="px-4 py-3 rounded-xl text-gray-400 hover:bg-white/5 hover:text-white">CSE
+                    Market (LK)</a>
+                <a href="ai-invest.html" class="px-4 py-3 rounded-xl text-gray-400 hover:bg-white/5 hover:text-white">AI
+                    Crypto Picks</a>
+                <a href="ai-forex.html" class="px-4 py-3 rounded-xl text-gray-400 hover:bg-white/5 hover:text-white">AI
+                    FX Signals</a>
+                <a href="news.html" class="px-4 py-3 rounded-xl text-gray-400 hover:bg-white/5 hover:text-white">News
+                    Feed</a>
+                <a href="calculators.html"
+                    class="px-4 py-3 rounded-xl bg-white/10 text-white font-medium">Calculators</a>
+            </nav>
+        </div>
+    </div>
+
+    <script src="assets/js/main.js"></script>
+    <script src="assets/js/calculators.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TradingHub — Sign In</title>
+    <meta name="description" content="Sign in or create your TradingHub account to access live market data.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        darkbg: '#050b14', primary: '#3b82f6',
+                        secondary: '#8b5cf6', accent: '#10b981',
+                        danger: '#ef4444', gold: '#f59e0b',
+                        glassborder: 'rgba(255,255,255,0.10)'
+                    },
+                    fontFamily: { sans: ['Inter', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ── Animated gradient BG ── */
+        body {
+            background: #050b14;
+            overflow: hidden;
+        }
+
+        @keyframes gradMove {
+            0% {
+                transform: translate(0, 0) scale(1)
+            }
+
+            33% {
+                transform: translate(30px, -20px) scale(1.05)
+            }
+
+            66% {
+                transform: translate(-20px, 15px) scale(0.97)
+            }
+
+            100% {
+                transform: translate(0, 0) scale(1)
+            }
+        }
+
+        .orb1 {
+            animation: gradMove 18s ease-in-out infinite;
+        }
+
+        .orb2 {
+            animation: gradMove 22s ease-in-out infinite reverse;
+        }
+
+        .orb3 {
+            animation: gradMove 14s ease-in-out infinite 4s;
+        }
+
+        /* ── Grid lines ── */
+        .grid-bg {
+            background-image: linear-gradient(rgba(59, 130, 246, .03) 1px, transparent 1px), linear-gradient(90deg, rgba(59, 130, 246, .03) 1px, transparent 1px);
+            background-size: 44px 44px;
+        }
+
+        /* ── Glass card ── */
+        .auth-card {
+            background: rgba(10, 15, 28, 0.88);
+            border: 1px solid rgba(255, 255, 255, 0.09);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+        }
+
+        /* ── Input ── */
+        .auth-input {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            outline: none;
+            transition: border-color .2s, box-shadow .2s;
+        }
+
+        .auth-input:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+        }
+
+        .auth-input::placeholder {
+            color: #4b5563;
+        }
+
+        /* ── Buttons ── */
+        .btn-primary {
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            transition: opacity .2s, transform .15s, box-shadow .2s;
+        }
+
+        .btn-primary:hover {
+            opacity: .92;
+            transform: translateY(-1px);
+            box-shadow: 0 8px 24px rgba(59, 130, 246, .3);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-google {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            transition: background .2s, border-color .2s;
+        }
+
+        .btn-google:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, .2);
+        }
+
+        /* ── Tabs ── */
+        .tab-btn {
+            transition: color .2s;
+            border-bottom: 2px solid transparent;
+            padding-bottom: 10px;
+        }
+
+        .tab-btn.active {
+            color: white;
+            border-color: #3b82f6;
+        }
+
+        /* ── Fades ── */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px)
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0)
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn .35s ease forwards;
+        }
+
+        /* ── Ticker strip ── */
+        @keyframes marquee {
+            from {
+                transform: translateX(0)
+            }
+
+            to {
+                transform: translateX(-50%)
+            }
+        }
+
+        .marquee-inner {
+            animation: marquee 25s linear infinite;
+            display: flex;
+            white-space: nowrap;
+        }
+
+        /* ── Error / success bar ── */
+        .msg-bar {
+            transition: all .3s;
+        }
+
+        .msg-error {
+            border-color: rgba(239, 68, 68, .4);
+            background: rgba(239, 68, 68, .08);
+            color: #fca5a5;
+        }
+
+        .msg-success {
+            border-color: rgba(16, 185, 129, .4);
+            background: rgba(16, 185, 129, .08);
+            color: #6ee7b7;
+        }
+
+        .msg-loading {
+            border-color: rgba(59, 130, 246, .4);
+            background: rgba(59, 130, 246, .08);
+            color: #93c5fd;
+        }
+
+        /* ── Password strength ── */
+        .strength-bar {
+            height: 3px;
+            border-radius: 999px;
+            transition: width .3s, background .3s;
+        }
+
+        /* ── OTP Boxes ── */
+        .otp-box {
+            width: 48px;
+            height: 56px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1.5px solid rgba(255, 255, 255, 0.12);
+            border-radius: 12px;
+            color: white;
+            font-size: 22px;
+            font-weight: 800;
+            text-align: center;
+            outline: none;
+            caret-color: #3b82f6;
+            transition: border-color .2s, box-shadow .2s, transform .15s;
+            font-family: 'Inter', monospace;
+        }
+
+        .otp-box:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.18);
+            transform: scale(1.06);
+        }
+
+        .otp-box.filled {
+            border-color: rgba(16, 185, 129, 0.5);
+            background: rgba(16, 185, 129, 0.06);
+        }
+
+        .otp-box.wrong {
+            border-color: rgba(239, 68, 68, 0.6);
+            background: rgba(239, 68, 68, 0.07);
+            animation: shake .4s ease;
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0)
+            }
+
+            20% {
+                transform: translateX(-5px)
+            }
+
+            40% {
+                transform: translateX(5px)
+            }
+
+            60% {
+                transform: translateX(-4px)
+            }
+
+            80% {
+                transform: translateX(4px)
+            }
+        }
+
+        /* OTP panel slide */
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px)
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0)
+            }
+        }
+
+        #otpPanel {
+            animation: slideUp .4s ease forwards;
+        }
+    </style>
+</head>
+
+<body class="font-sans antialiased text-gray-200 grid-bg min-h-screen flex flex-col">
+
+    <!-- Animated Orbs -->
+    <div class="fixed inset-0 z-0 overflow-hidden pointer-events-none">
+        <div class="orb1 absolute top-[-15%] left-[-10%] w-[50%] h-[50%] rounded-full bg-primary/12 blur-[140px]"></div>
+        <div class="orb2 absolute bottom-[-10%] right-[-5%] w-[45%] h-[45%] rounded-full bg-secondary/12 blur-[140px]">
+        </div>
+        <div class="orb3 absolute top-[40%] left-[45%] w-[30%] h-[30%] rounded-full bg-accent/7 blur-[120px]"></div>
+    </div>
+
+    <!-- Live ticker strip -->
+    <div class="relative z-10 border-b border-white/5 bg-black/30 h-8 overflow-hidden flex items-center">
+        <div class="marquee-inner text-[10px] text-gray-500 font-mono gap-8 flex px-4">
+            <span>EUR/USD &nbsp;<span class="text-white">1.0842</span></span>
+            <span class="text-gray-700">·</span>
+            <span>GBP/USD &nbsp;<span class="text-white">1.2634</span></span>
+            <span class="text-gray-700">·</span>
+            <span>BTC &nbsp;<span class="text-yellow-400">$68,420</span> <span
+                    class="text-emerald-400">▲2.4%</span></span>
+            <span class="text-gray-700">·</span>
+            <span>ETH &nbsp;<span class="text-indigo-400">$3,541</span> <span
+                    class="text-emerald-400">▲1.8%</span></span>
+            <span class="text-gray-700">·</span>
+            <span>USD/LKR &nbsp;<span class="text-white">320.45</span></span>
+            <span class="text-gray-700">·</span>
+            <span>ASPI &nbsp;<span class="text-white">10,450</span> <span class="text-emerald-400">▲0.4%</span></span>
+            <span class="text-gray-700">·</span>
+            <!-- duplicate -->
+            <span>EUR/USD &nbsp;<span class="text-white">1.0842</span></span>
+            <span class="text-gray-700">·</span>
+            <span>GBP/USD &nbsp;<span class="text-white">1.2634</span></span>
+            <span class="text-gray-700">·</span>
+            <span>BTC &nbsp;<span class="text-yellow-400">$68,420</span> <span
+                    class="text-emerald-400">▲2.4%</span></span>
+            <span class="text-gray-700">·</span>
+            <span>ETH &nbsp;<span class="text-indigo-400">$3,541</span> <span
+                    class="text-emerald-400">▲1.8%</span></span>
+            <span class="text-gray-700">·</span>
+            <span>USD/LKR &nbsp;<span class="text-white">320.45</span></span>
+            <span class="text-gray-700">·</span>
+            <span>ASPI &nbsp;<span class="text-white">10,450</span> <span class="text-emerald-400">▲0.4%</span></span>
+        </div>
+    </div>
+
+    <!-- Main -->
+    <div class="flex-1 relative z-10 flex items-center justify-center p-4">
+        <div class="w-full max-w-md fade-in">
+
+            <!-- Logo -->
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center gap-3 mb-3">
+                    <div
+                        class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-primary to-secondary flex items-center justify-center shadow-lg shadow-primary/30">
+                        <i class="fa-solid fa-chart-line text-white text-lg"></i>
+                    </div>
+                    <h1 class="text-2xl font-black text-white tracking-tight">TradingHub</h1>
+                </div>
+                <p class="text-gray-500 text-sm">Your professional market intelligence platform</p>
+            </div>
+
+            <!-- Auth Card -->
+            <div class="auth-card rounded-2xl p-8 shadow-2xl">
+
+                <!-- Tabs -->
+                <div class="flex border-b border-white/8 mb-6 gap-6">
+                    <button id="tabLogin" class="tab-btn active text-gray-400 text-sm font-semibold"
+                        onclick="switchTab('login')">
+                        <i class="fa-solid fa-sign-in-alt mr-1.5"></i>Sign In
+                    </button>
+                    <button id="tabRegister" class="tab-btn text-gray-400 text-sm font-semibold"
+                        onclick="switchTab('register')">
+                        <i class="fa-solid fa-user-plus mr-1.5"></i>Create Account
+                    </button>
+                </div>
+
+                <!-- Message Bar -->
+                <div id="msgBar" class="hidden mb-4 px-4 py-3 rounded-xl border text-sm msg-bar"></div>
+
+                <!-- ── LOGIN FORM ── -->
+                <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
+                    <div>
+                        <label class="text-xs font-semibold text-gray-400 mb-1.5 block">Email Address</label>
+                        <div class="relative">
+                            <i
+                                class="fa-solid fa-envelope absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 text-sm"></i>
+                            <input id="loginEmail" type="email" placeholder="you@example.com" required
+                                class="auth-input w-full pl-10 pr-4 py-3 rounded-xl text-sm">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="text-xs font-semibold text-gray-400 mb-1.5 block">Password</label>
+                        <div class="relative">
+                            <i
+                                class="fa-solid fa-lock absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 text-sm"></i>
+                            <input id="loginPassword" type="password" placeholder="••••••••" required
+                                class="auth-input w-full pl-10 pr-10 py-3 rounded-xl text-sm">
+                            <button type="button" onclick="togglePwd('loginPassword',this)"
+                                class="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300">
+                                <i class="fa-solid fa-eye text-sm"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <label class="flex items-center gap-2 text-xs text-gray-400 cursor-pointer">
+                            <input type="checkbox" id="rememberMe" class="accent-primary"> Remember me
+                        </label>
+                        <button type="button" onclick="handleForgotPassword()"
+                            class="text-xs text-primary hover:text-blue-300 transition-colors">
+                            Forgot password?
+                        </button>
+                    </div>
+                    <button type="submit"
+                        class="btn-primary w-full py-3 rounded-xl text-sm font-bold text-white flex items-center justify-center gap-2 mt-2">
+                        <i class="fa-solid fa-sign-in-alt"></i> Sign In to TradingHub
+                    </button>
+                </form>
+
+                <!-- ── REGISTER FORM ── -->
+                <form id="registerForm" onsubmit="handleRegister(event)" class="space-y-4 hidden">
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="text-xs font-semibold text-gray-400 mb-1.5 block">First Name</label>
+                            <input id="regFirst" type="text" placeholder="John" required
+                                class="auth-input w-full px-4 py-3 rounded-xl text-sm">
+                        </div>
+                        <div>
+                            <label class="text-xs font-semibold text-gray-400 mb-1.5 block">Last Name</label>
+                            <input id="regLast" type="text" placeholder="Doe" required
+                                class="auth-input w-full px-4 py-3 rounded-xl text-sm">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="text-xs font-semibold text-gray-400 mb-1.5 block">Email Address</label>
+                        <div class="relative">
+                            <i
+                                class="fa-solid fa-envelope absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 text-sm"></i>
+                            <input id="regEmail" type="email" placeholder="you@example.com" required
+                                class="auth-input w-full pl-10 pr-4 py-3 rounded-xl text-sm">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="text-xs font-semibold text-gray-400 mb-1.5 block">Password</label>
+                        <div class="relative">
+                            <i
+                                class="fa-solid fa-lock absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 text-sm"></i>
+                            <input id="regPassword" type="password" placeholder="Min 8 characters" required
+                                oninput="checkStrength(this.value)"
+                                class="auth-input w-full pl-10 pr-10 py-3 rounded-xl text-sm">
+                            <button type="button" onclick="togglePwd('regPassword',this)"
+                                class="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300">
+                                <i class="fa-solid fa-eye text-sm"></i>
+                            </button>
+                        </div>
+                        <!-- Strength bar -->
+                        <div class="mt-2 flex gap-1">
+                            <div class="flex-1 bg-white/10 rounded-full overflow-hidden h-1">
+                                <div id="str1" class="strength-bar w-0 bg-danger"></div>
+                            </div>
+                            <div class="flex-1 bg-white/10 rounded-full overflow-hidden h-1">
+                                <div id="str2" class="strength-bar w-0 bg-gold"></div>
+                            </div>
+                            <div class="flex-1 bg-white/10 rounded-full overflow-hidden h-1">
+                                <div id="str3" class="strength-bar w-0 bg-accent"></div>
+                            </div>
+                        </div>
+                        <p id="strLabel" class="text-[10px] text-gray-600 mt-1"></p>
+                    </div>
+                    <div>
+                        <label class="text-xs font-semibold text-gray-400 mb-1.5 block">Confirm Password</label>
+                        <div class="relative">
+                            <i
+                                class="fa-solid fa-lock absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 text-sm"></i>
+                            <input id="regConfirm" type="password" placeholder="Re-enter password" required
+                                class="auth-input w-full pl-10 pr-4 py-3 rounded-xl text-sm">
+                        </div>
+                    </div>
+                    <label class="flex items-start gap-2.5 cursor-pointer">
+                        <input type="checkbox" id="regAgree" required class="accent-primary mt-0.5">
+                        <span class="text-xs text-gray-400">I agree to the <span class="text-primary">Terms of
+                                Service</span> and acknowledge the trading risks involved.</span>
+                    </label>
+                    <button type="submit"
+                        class="btn-primary w-full py-3 rounded-xl text-sm font-bold text-white flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-user-plus"></i> Create My Account
+                    </button>
+                </form>
+
+                <!-- ── Divider ── -->
+                <div class="flex items-center gap-3 my-5">
+                    <div class="flex-1 h-px bg-white/8"></div>
+                    <span class="text-xs text-gray-600">or continue with</span>
+                    <div class="flex-1 h-px bg-white/8"></div>
+                </div>
+
+                <!-- ── Google Button ── -->
+                <button onclick="handleGoogleLogin()"
+                    class="btn-google w-full py-3 rounded-xl text-sm font-semibold text-white flex items-center justify-center gap-3">
+                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                        <path
+                            d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"
+                            fill="#4285F4" />
+                        <path
+                            d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z"
+                            fill="#34A853" />
+                        <path
+                            d="M3.964 10.71A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.042l3.007-2.332z"
+                            fill="#FBBC05" />
+                        <path
+                            d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"
+                            fill="#EA4335" />
+                    </svg>
+                    Sign in with Google
+                </button>
+
+            </div>
+
+            <!-- Footer note -->
+            <p class="text-center text-[11px] text-gray-600 mt-5">
+                <i class="fa-solid fa-shield-halved mr-1 text-accent/60"></i>
+                Secured by Firebase Auth · Your data is never shared
+            </p>
+        </div>
+
+        <!-- ── OTP Verification Panel ── -->
+        <div id="otpPanel" class="w-full max-w-md hidden">
+            <div class="auth-card rounded-2xl p-8 shadow-2xl text-center">
+
+                <!-- Icon -->
+                <div
+                    class="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/20 to-secondary/20 border border-primary/30 flex items-center justify-center mx-auto mb-5">
+                    <i class="fa-solid fa-envelope-open-text text-primary text-2xl"></i>
+                </div>
+
+                <h2 class="text-xl font-black text-white mb-2">Verify Your Email</h2>
+                <p class="text-gray-500 text-sm mb-1">A 6-digit code was sent to</p>
+                <p class="text-primary font-semibold text-sm mb-6" id="otpEmailDisplay">your email</p>
+
+                <!-- OTP Message -->
+                <div id="otpMsg" class="hidden mb-4 px-4 py-3 rounded-xl border text-sm"></div>
+
+                <!-- 6 OTP Boxes -->
+                <div class="flex justify-center gap-2.5 mb-6" id="otpBoxRow">
+                    <input class="otp-box" id="otp0" maxlength="1" inputmode="numeric" pattern="[0-9]">
+                    <input class="otp-box" id="otp1" maxlength="1" inputmode="numeric" pattern="[0-9]">
+                    <input class="otp-box" id="otp2" maxlength="1" inputmode="numeric" pattern="[0-9]">
+                    <input class="otp-box" id="otp3" maxlength="1" inputmode="numeric" pattern="[0-9]">
+                    <input class="otp-box" id="otp4" maxlength="1" inputmode="numeric" pattern="[0-9]">
+                    <input class="otp-box" id="otp5" maxlength="1" inputmode="numeric" pattern="[0-9]">
+                </div>
+
+                <!-- Timer -->
+                <div class="flex items-center justify-center gap-2 mb-5">
+                    <i class="fa-regular fa-clock text-gray-500 text-sm"></i>
+                    <span class="text-sm text-gray-400">Code expires in <span id="otpTimer"
+                            class="text-white font-bold font-mono">5:00</span></span>
+                </div>
+
+                <!-- Verify Button -->
+                <button onclick="verifyOtp()"
+                    class="btn-primary w-full py-3 rounded-xl text-sm font-bold text-white flex items-center justify-center gap-2 mb-3">
+                    <i class="fa-solid fa-shield-check"></i> Verify & Enter Dashboard
+                </button>
+
+                <!-- Resend + Back -->
+                <div class="flex gap-3">
+                    <button onclick="resendOtp()" id="resendBtn"
+                        class="flex-1 py-2.5 rounded-xl border border-glassborder text-sm text-gray-400 hover:text-white hover:border-white/20 transition-all">
+                        <i class="fa-solid fa-rotate-right mr-1"></i> Resend Code
+                    </button>
+                    <button onclick="backToLogin()"
+                        class="flex-1 py-2.5 rounded-xl border border-glassborder text-sm text-gray-400 hover:text-white hover:border-white/20 transition-all">
+                        <i class="fa-solid fa-arrow-left mr-1"></i> Back
+                    </button>
+                </div>
+
+                <p class="text-[11px] text-gray-600 mt-5">
+                    <i class="fa-solid fa-info-circle mr-1"></i>Check spam folder if not received
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- EmailJS SDK (for OTP emails) -->
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js';
+        import {
+            getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
+            signInWithPopup, GoogleAuthProvider, sendPasswordResetEmail,
+            onAuthStateChanged, updateProfile
+        } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js';
+
+        // ════════════════════════════════════════════════════════
+        // 🔧 PASTE YOUR FIREBASE CONFIG HERE
+        // ════════════════════════════════════════════════════════
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+        // ════════════════════════════════════════════════════════
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const googlePv = new GoogleAuthProvider();
+        googlePv.addScope('profile');
+        googlePv.addScope('email');
+
+        // Check if already logged in → but OTP flag not set → redirect to dashboard
+        onAuthStateChanged(auth, user => {
+            if (user && sessionStorage.getItem('th_otp_verified') === 'yes') {
+                window.location.replace('index.html');
+            }
+        });
+
+        // ── After Firebase auth success → trigger OTP if email-based ──
+        function afterAuthSuccess(user, isGoogle = false) {
+            if (isGoogle) {
+                // Google login = trusted, skip OTP
+                sessionStorage.setItem('th_otp_verified', 'yes');
+                showMsg('✅ Signed in with Google! Redirecting...', 'success');
+                setTimeout(() => window.location.replace('index.html'), 800);
+                return;
+            }
+            showMsg('✅ Auth successful! Sending OTP...', 'success');
+            setTimeout(() => window._triggerOTP(user.email), 600);
+        }
+
+        // ── Expose handlers to window ──
+        window._fbAuth = auth;
+        window._fbGoogle = googlePv;
+        window._fbModules = {
+            createUserWithEmailAndPassword,
+            signInWithEmailAndPassword,
+            signInWithPopup,
+            sendPasswordResetEmail,
+            updateProfile,
+        };
+
+        window.handleLogin = async (e) => {
+            e.preventDefault();
+            showMsg('Signing in...', 'loading');
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            try {
+                const cred = await signInWithEmailAndPassword(auth, email, password);
+                afterAuthSuccess(cred.user);
+            } catch (err) {
+                showMsg('❌ ' + friendlyError(err.code), 'error');
+            }
+        };
+
+        window.handleRegister = async (e) => {
+            e.preventDefault();
+            const first = document.getElementById('regFirst').value.trim();
+            const last = document.getElementById('regLast').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const pass = document.getElementById('regPassword').value;
+            const confirm = document.getElementById('regConfirm').value;
+            if (pass !== confirm) { showMsg('❌ Passwords do not match!', 'error'); return; }
+            if (pass.length < 8) { showMsg('❌ Password must be at least 8 characters', 'error'); return; }
+            showMsg('Creating your account...', 'loading');
+            try {
+                const cred = await createUserWithEmailAndPassword(auth, email, pass);
+                await updateProfile(cred.user, { displayName: `${first} ${last}` });
+                afterAuthSuccess(cred.user);
+            } catch (err) {
+                showMsg('❌ ' + friendlyError(err.code), 'error');
+            }
+        };
+
+        window.handleGoogleLogin = async () => {
+            showMsg('Opening Google sign-in...', 'loading');
+            try {
+                const cred = await signInWithPopup(auth, googlePv);
+                afterAuthSuccess(cred.user, true); // Google = skip OTP
+            } catch (err) {
+                if (err.code !== 'auth/popup-closed-by-user')
+                    showMsg('❌ ' + friendlyError(err.code), 'error');
+                else hideMsg();
+            }
+        };
+
+        window.handleForgotPassword = async () => {
+            const email = document.getElementById('loginEmail').value.trim();
+            if (!email) { showMsg('⚠️ Enter your email first, then click Forgot Password', 'error'); return; }
+            showMsg('Sending reset email...', 'loading');
+            try {
+                await sendPasswordResetEmail(auth, email);
+                showMsg('✅ Password reset email sent! Check your inbox.', 'success');
+            } catch (err) {
+                showMsg('❌ ' + friendlyError(err.code), 'error');
+            }
+        };
+    </script>
+
+    <script>
+        // ── Tab switch ──
+        function switchTab(tab) {
+            const isLogin = tab === 'login';
+            document.getElementById('loginForm').classList.toggle('hidden', !isLogin);
+            document.getElementById('registerForm').classList.toggle('hidden', isLogin);
+            document.getElementById('tabLogin').classList.toggle('active', isLogin);
+            document.getElementById('tabRegister').classList.toggle('active', !isLogin);
+            hideMsg();
+        }
+
+        // ── Message bar ──
+        function showMsg(msg, type) {
+            const el = document.getElementById('msgBar');
+            el.className = 'mb-4 px-4 py-3 rounded-xl border text-sm msg-bar msg-' + type;
+            el.textContent = msg;
+            el.classList.remove('hidden');
+        }
+        function hideMsg() {
+            document.getElementById('msgBar').classList.add('hidden');
+        }
+
+        // ── Password toggle ──
+        function togglePwd(id, btn) {
+            const inp = document.getElementById(id);
+            const ic = btn.querySelector('i');
+            if (inp.type === 'password') { inp.type = 'text'; ic.className = 'fa-solid fa-eye-slash text-sm'; }
+            else { inp.type = 'password'; ic.className = 'fa-solid fa-eye text-sm'; }
+        }
+
+        // ── Password strength ──
+        function checkStrength(val) {
+            const bars = ['str1', 'str2', 'str3'];
+            const label = document.getElementById('strLabel');
+            let score = 0;
+            if (val.length >= 8) score++;
+            if (/[A-Z]/.test(val) && /[0-9]/.test(val)) score++;
+            if (/[^A-Za-z0-9]/.test(val)) score++;
+
+            bars.forEach((id, i) => {
+                const el = document.getElementById(id);
+                const on = i < score;
+                el.style.width = on ? '100%' : '0';
+            });
+
+            const labels = ['', 'Weak password', 'Medium strength', 'Strong password ✓'];
+            const colors = ['', 'text-danger', 'text-gold', 'text-accent'];
+            label.textContent = labels[score] || '';
+            label.className = 'text-[10px] mt-1 ' + (colors[score] || 'text-gray-600');
+        }
+
+        // ── Firebase error → friendly message ──
+        function friendlyError(code) {
+            const map = {
+                'auth/email-already-in-use': 'This email is already registered. Try signing in.',
+                'auth/invalid-email': 'Invalid email address format.',
+                'auth/weak-password': 'Password is too weak (min 6 characters).',
+                'auth/user-not-found': 'No account found with this email.',
+                'auth/wrong-password': 'Incorrect password. Try again.',
+                'auth/too-many-requests': 'Too many attempts. Try again in a few minutes.',
+                'auth/network-request-failed': 'Network error. Check your internet connection.',
+                'auth/configuration-not-found': '⚙️ Firebase not configured yet — see setup guide.',
+                'auth/invalid-api-key': '⚙️ Invalid Firebase API key — check your config.',
+            };
+            return map[code] || 'Error: ' + code;
+        }
+
+        // ════════════════════════════════════════════════════════
+        // OTP SYSTEM
+        // ════════════════════════════════════════════════════════
+
+        // ── EmailJS Config for OTP ──
+        // Use same Service/Template from EmailJS. Create a NEW template:
+        // Subject: "Your TradingHub OTP: {{otp_code}}"
+        // Body: Your OTP code is: <strong>{{otp_code}}</strong> — valid 5 minutes.
+        const OTP_EJS_PUBLIC_KEY = 'YOUR_PUBLIC_KEY';   // same as manage.html
+        const OTP_EJS_SERVICE_ID = 'YOUR_SERVICE_ID';
+        const OTP_EJS_TEMPLATE_ID = 'YOUR_OTP_TEMPLATE_ID'; // new OTP-specific template
+
+        let _otp = null;  // 6-digit string
+        let _otpExpiry = null;  // Date timestamp
+        let _otpEmail = null;
+        let _timerInt = null;
+
+        // Called after Firebase auth passes — generates + sends OTP
+        window._triggerOTP = function (email) {
+            _otpEmail = email;
+            _otp = String(Math.floor(100000 + Math.random() * 900000));
+            _otpExpiry = Date.now() + 5 * 60 * 1000; // 5 min
+
+            // Show OTP panel
+            document.querySelector('.w-full.max-w-md.fade-in').classList.add('hidden');
+            document.getElementById('otpPanel').classList.remove('hidden');
+            document.getElementById('otpEmailDisplay').textContent = email;
+
+            // Clear boxes
+            for (let i = 0; i < 6; i++) {
+                const b = document.getElementById('otp' + i);
+                b.value = ''; b.className = 'otp-box';
+            }
+            document.getElementById('otp0').focus();
+
+            startOtpTimer();
+            sendOtpEmail(_otp, email);
+        };
+
+        function startOtpTimer() {
+            clearInterval(_timerInt);
+            _timerInt = setInterval(() => {
+                const rem = Math.max(0, _otpExpiry - Date.now());
+                const m = Math.floor(rem / 60000);
+                const s = Math.floor((rem % 60000) / 1000);
+                const el = document.getElementById('otpTimer');
+                if (el) el.textContent = m + ':' + String(s).padStart(2, '0');
+                if (rem <= 0) {
+                    clearInterval(_timerInt);
+                    otpMsg('⏰ OTP expired. Click Resend.', 'error');
+                }
+            }, 500);
+        }
+
+        async function sendOtpEmail(code, email) {
+            // Try EmailJS
+            try {
+                if (OTP_EJS_PUBLIC_KEY !== 'YOUR_PUBLIC_KEY') {
+                    emailjs.init({ publicKey: OTP_EJS_PUBLIC_KEY });
+                    await emailjs.send(OTP_EJS_SERVICE_ID, OTP_EJS_TEMPLATE_ID, {
+                        to_email: email,
+                        otp_code: code,
+                        user_email: email,
+                    });
+                    otpMsg('📧 OTP sent to ' + email, 'success');
+                } else {
+                    // EmailJS not configured — show code on screen for dev/testing
+                    otpMsg('⚠️ EmailJS not set up. Dev OTP: ' + code, 'loading');
+                }
+            } catch (e) {
+                otpMsg('⚠️ Could not send email. Dev OTP shown: ' + code, 'loading');
+            }
+        }
+
+        window.verifyOtp = function () {
+            const entered = [0, 1, 2, 3, 4, 5].map(i => document.getElementById('otp' + i).value).join('');
+            if (entered.length < 6) { otpMsg('❌ Enter all 6 digits', 'error'); return; }
+            if (Date.now() > _otpExpiry) { otpMsg('⏰ OTP expired — click Resend', 'error'); return; }
+
+            if (entered === _otp) {
+                clearInterval(_timerInt);
+                otpMsg('✅ Verified! Entering dashboard...', 'success');
+                // Mark OTP as done for this session
+                sessionStorage.setItem('th_otp_verified', 'yes');
+                for (let i = 0; i < 6; i++) document.getElementById('otp' + i).classList.add('filled');
+                setTimeout(() => window.location.replace('index.html'), 900);
+            } else {
+                otpMsg('❌ Wrong code. Try again.', 'error');
+                for (let i = 0; i < 6; i++) {
+                    const b = document.getElementById('otp' + i);
+                    b.classList.add('wrong');
+                    setTimeout(() => b.classList.remove('wrong'), 500);
+                }
+            }
+        };
+
+        window.resendOtp = function () {
+            if (!_otpEmail) return;
+            _otp = String(Math.floor(100000 + Math.random() * 900000));
+            _otpExpiry = Date.now() + 5 * 60 * 1000;
+            for (let i = 0; i < 6; i++) { const b = document.getElementById('otp' + i); b.value = ''; b.className = 'otp-box'; }
+            document.getElementById('otp0').focus();
+            startOtpTimer();
+            sendOtpEmail(_otp, _otpEmail);
+        };
+
+        window.backToLogin = function () {
+            clearInterval(_timerInt);
+            document.getElementById('otpPanel').classList.add('hidden');
+            document.querySelector('.w-full.max-w-md.fade-in').classList.remove('hidden');
+            _otp = null; _otpExpiry = null;
+        };
+
+        function otpMsg(msg, type) {
+            const el = document.getElementById('otpMsg');
+            const cls = { success: 'border-accent/40 bg-accent/8 text-emerald-300', error: 'border-danger/40 bg-danger/8 text-red-300', loading: 'border-primary/40 bg-primary/8 text-blue-300' };
+            el.className = 'mb-4 px-4 py-3 rounded-xl border text-sm ' + (cls[type] || '');
+            el.textContent = msg;
+            el.classList.remove('hidden');
+        }
+
+        // ── OTP Box: auto-advance + backspace + paste ──
+        document.addEventListener('DOMContentLoaded', () => {
+            const boxes = [0, 1, 2, 3, 4, 5].map(i => document.getElementById('otp' + i));
+            boxes.forEach((box, idx) => {
+                box.addEventListener('input', e => {
+                    const val = e.target.value.replace(/\D/g, '');
+                    e.target.value = val.slice(-1);
+                    if (val && idx < 5) boxes[idx + 1].focus();
+                    e.target.classList.toggle('filled', !!val);
+                    // Auto verify when all filled
+                    if (boxes.every(b => b.value)) setTimeout(verifyOtp, 200);
+                });
+                box.addEventListener('keydown', e => {
+                    if (e.key === 'Backspace' && !box.value && idx > 0) boxes[idx - 1].focus();
+                    if (e.key === 'ArrowLeft' && idx > 0) boxes[idx - 1].focus();
+                    if (e.key === 'ArrowRight' && idx < 5) boxes[idx + 1].focus();
+                    if (e.key === 'Enter') verifyOtp();
+                });
+                // Paste support (paste 6 digits at once)
+                box.addEventListener('paste', e => {
+                    e.preventDefault();
+                    const txt = (e.clipboardData.getData('text') || '').replace(/\D/g, '').slice(0, 6);
+                    txt.split('').forEach((ch, ci) => { if (boxes[ci]) { boxes[ci].value = ch; boxes[ci].classList.add('filled'); } });
+                    if (txt.length === 6) setTimeout(verifyOtp, 200);
+                    else if (boxes[txt.length]) boxes[txt.length].focus();
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>

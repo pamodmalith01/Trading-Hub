@@ -1,0 +1,1677 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TradingHub - Account Management | ගිණුම් කළමනාකරණ සේවාව</title>
+    <meta name="description"
+        content="Submit your MT4/MT5 forex trading account for professional management. 50/50 profit sharing, minimum $100 deposit. | ඔබේ MT4/MT5 ගිණුම කළමනාකරණය සඳහා ඉදිරිපත් කරන්න.">
+    <!-- EmailJS SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        darkbg: '#050b14',
+                        glass: 'rgba(17, 25, 40, 0.75)',
+                        glassborder: 'rgba(255, 255, 255, 0.125)',
+                        primary: '#3b82f6',
+                        secondary: '#8b5cf6',
+                        accent: '#10b981',
+                        danger: '#ef4444',
+                        gold: '#f59e0b',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    animation: {
+                        'gradient-x': 'gradient-x 15s ease infinite',
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        'gradient-x': {
+                            '0%, 100%': { 'background-size': '200% 200%', 'background-position': 'left center' },
+                            '50%': { 'background-size': '200% 200%', 'background-position': 'right center' }
+                        },
+                        'float': {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-10px)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        /* Step indicator */
+        .step-connector {
+            width: 60px;
+            height: 2px;
+            background: linear-gradient(90deg, rgba(59, 130, 246, 0.5), rgba(139, 92, 246, 0.3));
+        }
+
+        /* Input styling */
+        .form-input {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #e2e8f0;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: rgba(59, 130, 246, 0.6);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+            background: rgba(15, 23, 42, 0.8);
+        }
+
+        .form-input::placeholder {
+            color: rgba(148, 163, 184, 0.5);
+        }
+
+        /* Feature card hover */
+        .feature-card {
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(59, 130, 246, 0.4);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Profit share badge */
+        .profit-badge {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(239, 68, 68, 0.1));
+            border: 1px solid rgba(245, 158, 11, 0.4);
+        }
+
+        /* Submit button gradient */
+        .btn-submit {
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-submit::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn-submit:hover::before {
+            left: 100%;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-submit:active {
+            transform: translateY(0);
+        }
+
+        /* Success modal */
+        .modal-overlay {
+            backdrop-filter: blur(8px);
+        }
+
+        /* Password eye toggle */
+        .pass-toggle {
+            cursor: pointer;
+            color: rgba(148, 163, 184, 0.6);
+            transition: color 0.2s;
+        }
+
+        .pass-toggle:hover {
+            color: #3b82f6;
+        }
+
+        /* Tier card */
+        .tier-card {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.9) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.3s ease;
+        }
+
+        .tier-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .tier-card.recommended {
+            border-color: rgba(59, 130, 246, 0.5);
+            box-shadow: 0 0 30px rgba(59, 130, 246, 0.15);
+        }
+
+        /* Pulse dot */
+        @keyframes pulseDot {
+
+            0%,
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            50% {
+                transform: scale(1.4);
+                opacity: 0.7;
+            }
+        }
+
+        .pulse-dot {
+            animation: pulseDot 2s ease-in-out infinite;
+        }
+
+        /* WhatsApp button */
+        .btn-whatsapp {
+            background: linear-gradient(135deg, #25d366, #128c7e);
+            transition: all 0.3s ease;
+        }
+
+        .btn-whatsapp:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(37, 211, 102, 0.35);
+        }
+
+        /* Tooltip */
+        .tooltip {
+            position: relative;
+        }
+
+        .tooltip-text {
+            visibility: hidden;
+            background: rgba(15, 23, 42, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #cbd5e1;
+            font-size: 11px;
+            padding: 6px 10px;
+            border-radius: 6px;
+            position: absolute;
+            bottom: 130%;
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+            z-index: 99;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .slide-up {
+            animation: slideUp 0.5s ease forwards;
+        }
+
+        /* Protect icon spin on hover */
+        .security-icon {
+            transition: transform 0.4s ease;
+        }
+
+        .glass-card:hover .security-icon {
+            transform: rotate(15deg) scale(1.1);
+        }
+
+        /* ---- Photo Upload Zone ---- */
+        .photo-drop-zone {
+            border: 2px dashed rgba(255, 255, 255, 0.15);
+            border-radius: 14px;
+            background: rgba(15, 23, 42, 0.5);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .photo-drop-zone:hover,
+        .photo-drop-zone.dragover {
+            border-color: rgba(59, 130, 246, 0.6);
+            background: rgba(59, 130, 246, 0.08);
+        }
+
+        .photo-drop-zone img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: absolute;
+            top: 0;
+            left: 0;
+            border-radius: 12px;
+        }
+
+        .photo-drop-zone .remove-photo {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: rgba(239, 68, 68, 0.85);
+            color: #fff;
+            font-size: 11px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 10;
+            transition: all 0.2s;
+        }
+
+        .photo-drop-zone.has-photo .remove-photo {
+            display: flex;
+        }
+
+        .photo-drop-zone.has-photo .upload-placeholder {
+            display: none;
+        }
+
+        /* ---- Account ID Card ---- */
+        .card-scene {
+            width: 100%;
+            max-width: 420px;
+            height: 240px;
+            perspective: 1000px;
+            margin: 0 auto;
+        }
+
+        .card-3d {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .card-3d.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 18px;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .card-front {
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0f172a 100%);
+            border: 1px solid rgba(59, 130, 246, 0.4);
+        }
+
+        .card-back {
+            background: linear-gradient(135deg, #150a2e 0%, #2d1b5e 50%, #150a2e 100%);
+            border: 1px solid rgba(139, 92, 246, 0.4);
+            transform: rotateY(180deg);
+        }
+
+        .card-chip {
+            width: 38px;
+            height: 28px;
+            background: linear-gradient(135deg, #d4a017, #f7d060, #d4a017);
+            border-radius: 5px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-chip::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60%;
+            height: 60%;
+            border: 1.5px solid rgba(0, 0, 0, 0.3);
+            border-radius: 2px;
+        }
+
+        .card-stripe {
+            height: 40px;
+            background: linear-gradient(90deg, #1a1a2e, #2d2d5e, #1a1a2e);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .card-barcode {
+            display: flex;
+            gap: 2px;
+            padding: 6px 0;
+        }
+
+        .card-barcode span {
+            display: block;
+            height: 28px;
+            background: white;
+            border-radius: 1px;
+        }
+
+        .card-photo-thumb {
+            width: 52px;
+            height: 65px;
+            border-radius: 8px;
+            object-fit: cover;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .card-back-photo {
+            width: 80px;
+            height: 54px;
+            border-radius: 6px;
+            object-fit: cover;
+            border: 1.5px solid rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        @keyframes cardGlow {
+
+            0%,
+            100% {
+                box-shadow: 0 20px 60px rgba(59, 130, 246, 0.3);
+            }
+
+            50% {
+                box-shadow: 0 20px 80px rgba(139, 92, 246, 0.5);
+            }
+        }
+
+        .card-scene:hover .card-3d {
+            animation: none;
+        }
+
+        .id-card-modal .card-scene {
+            animation: cardGlow 3s ease infinite;
+        }
+
+        /* submit disabled state */
+        .btn-submit:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+        .btn-submit:disabled::before {
+            display: none;
+        }
+    </style>
+</head>
+
+<body class="bg-darkbg text-gray-200 font-sans antialiased overflow-x-hidden">
+    <!-- Background Effects -->
+    <div class="fixed inset-0 z-[-1] overflow-hidden pointer-events-none">
+        <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-primary/20 blur-[120px]"></div>
+        <div class="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-secondary/20 blur-[120px]">
+        </div>
+        <div class="absolute top-[50%] left-[40%] w-[25%] h-[25%] rounded-full bg-gold/10 blur-[100px]"></div>
+    </div>
+
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <aside
+            class="w-64 glass-panel border-r border-glassborder flex flex-col hidden md:flex transition-all duration-300">
+            <div class="p-6 flex items-center gap-3">
+                <div
+                    class="w-10 h-10 rounded-xl bg-gradient-to-tr from-primary to-secondary flex items-center justify-center shadow-lg shadow-primary/30">
+                    <i class="fa-solid fa-chart-line text-white"></i>
+                </div>
+                <h1 class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
+                    TradingHub</h1>
+            </div>
+
+            <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto hidden-scrollbar">
+                <p class="px-2 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">Dashboards</p>
+                <a href="index.html"
+                    class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition-all">
+                    <i class="fa-solid fa-house text-gray-400"></i>
+                    <span>Overview</span>
+                </a>
+                <a href="forex.html"
+                    class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition-all">
+                    <i class="fa-solid fa-globe text-gray-400"></i>
+                    <span>Forex &amp; Global</span>
+                </a>
+                <a href="cse.html"
+                    class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition-all">
+                    <i class="fa-solid fa-building text-gray-400"></i>
+                    <span>CSE Market (LK)</span>
+                </a>
+
+                <p class="px-2 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4 mt-8">AI Tools</p>
+                <a href="ai-invest.html"
+                    class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition-all">
+                    <i class="fa-solid fa-robot text-gray-400"></i>
+                    <span>AI Crypto Picks</span>
+                </a>
+                <a href="ai-forex.html"
+                    class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition-all">
+                    <i class="fa-solid fa-bolt text-danger"></i>
+                    <span>AI FX Signals</span>
+                </a>
+
+                <p class="px-2 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4 mt-8">Tools</p>
+                <a href="news.html"
+                    class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition-all">
+                    <i class="fa-solid fa-newspaper text-gray-400"></i>
+                    <span>News Feed</span>
+                </a>
+                <a href="calculators.html"
+                    class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition-all">
+                    <i class="fa-solid fa-calculator text-gray-400"></i>
+                    <span>Calculators</span>
+                </a>
+
+                <p class="px-2 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4 mt-8">Services</p>
+                <a href="manage.html"
+                    class="nav-item active flex items-center gap-3 px-4 py-3 rounded-xl text-white bg-white/10 border border-white/5 transition-all">
+                    <i class="fa-solid fa-briefcase text-gold"></i>
+                    <span>Account Management</span>
+                </a>
+            </nav>
+
+            <div class="p-4 mt-auto border-t border-glassborder">
+                <div class="flex items-center gap-3 px-4 py-3">
+                    <div
+                        class="w-8 h-8 rounded-full bg-gradient-to-r from-gold to-amber-600 flex items-center justify-center">
+                        <i class="fa-solid fa-handshake text-xs text-white"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gold font-medium">50/50 Profit Share</p>
+                        <p class="text-[10px] text-gray-500">Professional Management</p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 flex flex-col h-screen overflow-hidden relative">
+
+            <!-- Mobile Header -->
+            <header
+                class="md:hidden glass-panel border-b border-glassborder p-4 flex items-center justify-between z-10">
+                <div class="flex items-center gap-2">
+                    <div
+                        class="w-8 h-8 rounded-lg bg-gradient-to-tr from-primary to-secondary flex items-center justify-center">
+                        <i class="fa-solid fa-chart-line text-white text-sm"></i>
+                    </div>
+                    <h1 class="text-lg font-bold text-white">TradingHub</h1>
+                </div>
+                <button class="text-gray-300 hover:text-white" id="mobileMenuBtn">
+                    <i class="fa-solid fa-bars text-xl"></i>
+                </button>
+            </header>
+
+            <!-- Page Content -->
+            <div class="flex-1 overflow-y-auto p-4 md:p-8 hidden-scrollbar relative z-0">
+
+                <!-- Hero Section -->
+                <div class="slide-up mb-10">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-3">
+                        <div>
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="w-2 h-2 rounded-full bg-gold pulse-dot"></span>
+                                <span class="text-xs font-semibold text-gold uppercase tracking-widest">Professional
+                                    Service &nbsp;|&nbsp; වෘත්තීය සේවාව</span>
+                            </div>
+                            <h2 class="text-3xl md:text-4xl font-extrabold text-white tracking-tight leading-tight">
+                                Account <span
+                                    class="bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">Management</span>
+                                Service
+                            </h2>
+                            <p class="text-sm text-gray-500 italic mt-1">ගිණුම් කළමනාකරණ සේවාව</p>
+                            <p class="text-gray-400 text-sm mt-2 max-w-xl">
+                                We manage your forex trading account professionally.<br>
+                                <span class="text-gray-500 text-xs">ඔබේ forex trading account එකක් අපිට දෙන්න. Profit
+                                    50/50 බෙදා ගනිමු. Withdraw rights ඔබ ළඟම.</span>
+                            </p>
+                        </div>
+                        <div class="profit-badge rounded-2xl p-4 text-center min-w-[140px]">
+                            <p class="text-3xl font-black text-gold">50<span class="text-xl">/</span>50</p>
+                            <p class="text-xs text-amber-300/80 font-medium mt-1">Profit Share</p>
+                            <p class="text-[10px] text-amber-200/60">ලාභ බෙදා ගැනීම</p>
+                            <p class="text-[10px] text-gray-400 mt-1">No upfront fees | කලින් ගෙවීමක් නැත</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stats Row -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 slide-up" style="animation-delay:0.1s">
+                    <div class="glass-card rounded-2xl p-4 border border-glassborder text-center">
+                        <i class="fa-solid fa-dollar-sign text-accent text-xl mb-2"></i>
+                        <p class="text-2xl font-bold text-white">$100+</p>
+                        <p class="text-xs text-gray-400 mt-1">Min. Deposit</p>
+                        <p class="text-[10px] text-gray-500">අවම තැන්පතුව</p>
+                    </div>
+                    <div class="glass-card rounded-2xl p-4 border border-glassborder text-center">
+                        <i class="fa-solid fa-handshake text-gold text-xl mb-2"></i>
+                        <p class="text-2xl font-bold text-white">50%</p>
+                        <p class="text-xs text-gray-400 mt-1">Your Profit Share</p>
+                        <p class="text-[10px] text-gray-500">ඔබේ ලාභ කොටස</p>
+                    </div>
+                    <div class="glass-card rounded-2xl p-4 border border-glassborder text-center">
+                        <i class="fa-solid fa-shield-halved text-primary text-xl mb-2"></i>
+                        <p class="text-2xl font-bold text-white">Safe</p>
+                        <p class="text-xs text-gray-400 mt-1">Withdraw Disabled</p>
+                        <p class="text-[10px] text-gray-500">ආරක්ෂිතයි</p>
+                    </div>
+                    <div class="glass-card rounded-2xl p-4 border border-glassborder text-center">
+                        <i class="fa-solid fa-clock text-secondary text-xl mb-2"></i>
+                        <p class="text-2xl font-bold text-white">24/7</p>
+                        <p class="text-xs text-gray-400 mt-1">Active Trading</p>
+                        <p class="text-[10px] text-gray-500">සෑම දිනකම</p>
+                    </div>
+                </div>
+
+                <!-- Main Grid: Tier plans + Form -->
+                <div class="grid grid-cols-1 xl:grid-cols-3 gap-8 mb-8">
+
+                    <!-- Left: Tier Plans + How It Works -->
+                    <div class="xl:col-span-1 flex flex-col gap-6">
+
+                        <!-- Deposit Tiers -->
+                        <div class="glass-card rounded-2xl p-6 border border-glassborder">
+                            <h3 class="text-lg font-bold text-white mb-1 flex items-center gap-2">
+                                <i class="fa-solid fa-layer-group text-gold"></i> Deposit Tiers
+                                <span class="text-xs font-normal text-gray-500 ml-1">| තැන්පතු මට්ටම්</span>
+                            </h3>
+                            <p class="text-xs text-gray-400 mb-4">Minimum $100 — higher deposit = better
+                                results<br><span class="text-gray-500">අවම $100 — වැඩි තැන්පතු = වැඩි ලාභ</span></p>
+
+                            <div class="space-y-3">
+                                <!-- Starter -->
+                                <div class="tier-card rounded-xl p-4">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="text-sm font-semibold text-white">Starter <span
+                                                class="text-gray-500 font-normal text-xs">| මූලික</span></span>
+                                        <span
+                                            class="text-xs px-2 py-0.5 rounded-full bg-accent/20 text-accent border border-accent/30">$100
+                                            – $499</span>
+                                    </div>
+                                    <p class="text-xs text-gray-400">Basic lot sizing. Solid for beginners.<br><span
+                                            class="text-gray-500">මූලික lot sizing. ආරම්භකයින්ට හොඳයි.</span></p>
+                                    <div class="flex items-center gap-2 mt-2">
+                                        <div class="flex-1 h-1.5 rounded-full bg-white/10 overflow-hidden">
+                                            <div class="h-full bg-accent/60 rounded-full" style="width:33%"></div>
+                                        </div>
+                                        <span class="text-[10px] text-gray-500">50/50</span>
+                                    </div>
+                                </div>
+
+                                <!-- Pro (Recommended) -->
+                                <div class="tier-card recommended rounded-xl p-4 relative">
+                                    <div class="absolute -top-2.5 right-3">
+                                        <span
+                                            class="text-[10px] px-2 py-0.5 rounded-full bg-primary text-white font-bold">RECOMMENDED</span>
+                                    </div>
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="text-sm font-semibold text-white">Pro <span
+                                                class="text-gray-500 font-normal text-xs">| වෘත්තීය</span></span>
+                                        <span
+                                            class="text-xs px-2 py-0.5 rounded-full bg-primary/20 text-primary border border-primary/30">$500
+                                            – $1999</span>
+                                    </div>
+                                    <p class="text-xs text-gray-400">Higher lot sizes. Optimized strategy.<br><span
+                                            class="text-gray-500">විශාල lot sizes. හොඳ strategy.</span></p>
+                                    <div class="flex items-center gap-2 mt-2">
+                                        <div class="flex-1 h-1.5 rounded-full bg-white/10 overflow-hidden">
+                                            <div class="h-full bg-primary/70 rounded-full" style="width:66%"></div>
+                                        </div>
+                                        <span class="text-[10px] text-gray-500">50/50</span>
+                                    </div>
+                                </div>
+
+                                <!-- Elite -->
+                                <div class="tier-card rounded-xl p-4">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="text-sm font-semibold text-white">Elite <span
+                                                class="text-gray-500 font-normal text-xs">| ප්‍රභූ</span></span>
+                                        <span
+                                            class="text-xs px-2 py-0.5 rounded-full bg-gold/20 text-gold border border-gold/30">$2000+</span>
+                                    </div>
+                                    <p class="text-xs text-gray-400">Full portfolio. Priority management.<br><span
+                                            class="text-gray-500">සම්පූර්ණ portfolio. ප්‍රමුඛ සේවාව.</span></p>
+                                    <div class="flex items-center gap-2 mt-2">
+                                        <div class="flex-1 h-1.5 rounded-full bg-white/10 overflow-hidden">
+                                            <div class="h-full bg-gold/70 rounded-full" style="width:100%"></div>
+                                        </div>
+                                        <span class="text-[10px] text-gray-500">50/50</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- How It Works -->
+                        <div class="glass-card rounded-2xl p-6 border border-glassborder">
+                            <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                                <i class="fa-solid fa-list-ol text-secondary"></i> How It Works
+                                <span class="text-xs font-normal text-gray-500 ml-1">| ක්‍රියාවලිය</span>
+                            </h3>
+                            <div class="space-y-4">
+                                <div class="flex gap-3 items-start">
+                                    <div
+                                        class="w-7 h-7 rounded-full bg-primary/20 border border-primary/40 flex items-center justify-center flex-shrink-0 text-xs font-bold text-primary">
+                                        1</div>
+                                    <div>
+                                        <p class="text-sm font-semibold text-white">Submit Account Details <span
+                                                class="text-gray-500 font-normal text-xs">| ගිණුම් විස්තර ඉදිරිපත්
+                                                කරන්න</span></p>
+                                        <p class="text-xs text-gray-400 mt-0.5">Fill in your Account ID, Investor
+                                            Password &amp; MT Server below.<br>
+                                            <span class="text-gray-500">Account ID, Investor Password සහ MT Server form
+                                                එකට දාන්න.</span>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="flex gap-3 items-start">
+                                    <div
+                                        class="w-7 h-7 rounded-full bg-secondary/20 border border-secondary/40 flex items-center justify-center flex-shrink-0 text-xs font-bold text-secondary">
+                                        2</div>
+                                    <div>
+                                        <p class="text-sm font-semibold text-white">We Start Trading <span
+                                                class="text-gray-500 font-normal text-xs">| ව්‍යාපාරය ආරම්භ වේ</span>
+                                        </p>
+                                        <p class="text-xs text-gray-400 mt-0.5">We connect our EA Bot to your account
+                                            and begin trading 24/7.<br>
+                                            <span class="text-gray-500">ඔබේ account එකට EA Bot connect කර 24/7 trade
+                                                කිරීම ආරම්භ කරනවා.</span>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="flex gap-3 items-start">
+                                    <div
+                                        class="w-7 h-7 rounded-full bg-accent/20 border border-accent/40 flex items-center justify-center flex-shrink-0 text-xs font-bold text-accent">
+                                        3</div>
+                                    <div>
+                                        <p class="text-sm font-semibold text-white">Monthly Profit Share <span
+                                                class="text-gray-500 font-normal text-xs">| මාසික ලාභ බෙදීම</span></p>
+                                        <p class="text-xs text-gray-400 mt-0.5">Net profit split 50/50 at month end. You
+                                            can withdraw anytime.<br>
+                                            <span class="text-gray-500">මාස අවසානයේ net profit 50/50 බෙදනවා. ඔබට ඕනෑ
+                                                වේලාවක withdraw කරන්න.</span>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="flex gap-3 items-start">
+                                    <div
+                                        class="w-7 h-7 rounded-full bg-gold/20 border border-gold/40 flex items-center justify-center flex-shrink-0 text-xs font-bold text-gold">
+                                        4</div>
+                                    <div>
+                                        <p class="text-sm font-semibold text-white">You Stay in Control <span
+                                                class="text-gray-500 font-normal text-xs">| ඔබ ප්‍රධානයා</span></p>
+                                        <p class="text-xs text-gray-400 mt-0.5">Your account stays yours. Withdraw
+                                            rights always remain with you only.<br>
+                                            <span class="text-gray-500">ගිණුම ඔබේ. Withdraw rights සෑමවිටම ඔබ
+                                                ළඟය.</span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Security Note -->
+                        <div
+                            class="glass-card rounded-2xl p-5 border border-glassborder bg-gradient-to-br from-emerald-900/20 to-transparent">
+                            <div class="flex items-start gap-3">
+                                <i class="fa-solid fa-shield-check text-accent text-xl security-icon mt-0.5"></i>
+                                <div>
+                                    <p class="text-sm font-bold text-white mb-1">Your Funds Are Safe <span
+                                            class="text-gray-500 font-normal text-xs">| ඔබේ මුදල් ආරක්ෂිතයි</span></p>
+                                    <p class="text-xs text-gray-400 leading-relaxed">We only access your account via
+                                        <strong class="text-white">Investor Password</strong> — this allows trade
+                                        monitoring only, <span class="text-accent font-medium">withdrawals are
+                                            impossible</span> with it. Your funds stay in your account.<br>
+                                        <span class="text-gray-500 text-[11px]">අපි <strong class="text-white">Investor
+                                                Password</strong> එකෙන් පමණයි access කරන්නේ — trades බලන්න පුලුවන්,
+                                            <span class="text-accent">withdraw කරන්න බෑ</span>. ඔබේ මුදල්
+                                            ගිණුමේම.</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Application Form -->
+                    <div class="xl:col-span-2">
+                        <div class="glass-card rounded-2xl border border-glassborder overflow-hidden">
+                            <!-- Form Header -->
+                            <div
+                                class="p-6 border-b border-glassborder bg-gradient-to-r from-primary/10 to-secondary/10">
+                                <h3 class="text-xl font-bold text-white flex items-center gap-3">
+                                    <div
+                                        class="w-9 h-9 rounded-xl bg-gradient-to-tr from-primary to-secondary flex items-center justify-center shadow-lg">
+                                        <i class="fa-solid fa-briefcase text-sm text-white"></i>
+                                    </div>
+                                    Submit Your Account <span class="text-base font-normal text-gray-400">| ගිණුම
+                                        ඉදිරිපත් කරන්න</span>
+                                </h3>
+                                <p class="text-sm text-gray-400 mt-1">Fill in the form below. We'll contact you via
+                                    WhatsApp shortly.<br>
+                                    <span class="text-xs text-gray-500">පහත form එක fill කරන්න. WhatsApp හරහා ඉක්මනින්
+                                        contact කරනවා.</span>
+                                </p>
+                            </div>
+
+                            <form id="manageForm" class="p-6 space-y-5" onsubmit="handleFormSubmit(event)">
+
+                                <!-- Name + Contact -->
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-300 mb-1.5" for="fullName">
+                                            Full Name <span class="text-gray-500 font-normal text-xs">| සම්පූර්ණ
+                                                නම</span> <span class="text-danger">*</span>
+                                        </label>
+                                        <div class="relative">
+                                            <i
+                                                class="fa-solid fa-user absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 text-sm"></i>
+                                            <input type="text" id="fullName" required
+                                                placeholder="Your full name | ඔබේ සම්පූර්ණ නම"
+                                                class="form-input w-full pl-10 pr-4 py-3 rounded-xl text-sm">
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-300 mb-1.5" for="whatsapp">
+                                            WhatsApp Number <span class="text-gray-500 font-normal text-xs">| දුරකථන
+                                                අංකය</span> <span class="text-danger">*</span>
+                                        </label>
+                                        <div class="relative">
+                                            <i
+                                                class="fa-brands fa-whatsapp absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 text-sm"></i>
+                                            <input type="tel" id="whatsapp" required placeholder="+94 7X XXX XXXX"
+                                                class="form-input w-full pl-10 pr-4 py-3 rounded-xl text-sm">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Broker + Platform -->
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-300 mb-1.5" for="broker">
+                                            Broker Name <span class="text-gray-500 font-normal text-xs">| Broker
+                                                නම</span> <span class="text-danger">*</span>
+                                        </label>
+                                        <div class="relative">
+                                            <i
+                                                class="fa-solid fa-building-columns absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 text-sm"></i>
+                                            <input type="text" id="broker" required
+                                                placeholder="e.g. XM, Exness, FBS..."
+                                                class="form-input w-full pl-10 pr-4 py-3 rounded-xl text-sm">
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-300 mb-1.5" for="platform">
+                                            Platform <span class="text-gray-500 font-normal text-xs">| වේදිකාව</span>
+                                            <span class="text-danger">*</span>
+                                        </label>
+                                        <div class="relative">
+                                            <i
+                                                class="fa-solid fa-desktop absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 text-sm pointer-events-none"></i>
+                                            <select id="platform" required
+                                                class="form-input w-full pl-10 pr-4 py-3 rounded-xl text-sm appearance-none cursor-pointer">
+                                                <option value="" class="bg-gray-900">Select Platform | Platform තෝරන්න
+                                                </option>
+                                                <option value="MT4" class="bg-gray-900">MetaTrader 4 (MT4)</option>
+                                                <option value="MT5" class="bg-gray-900">MetaTrader 5 (MT5)</option>
+                                            </select>
+                                            <i
+                                                class="fa-solid fa-chevron-down absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-500 text-xs pointer-events-none"></i>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- MT Server -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-300 mb-1.5" for="mtServer">
+                                        MT Server Name <span class="text-gray-500 font-normal text-xs">| Server
+                                            නම</span>
+                                        <span class="tooltip ml-1">
+                                            <i
+                                                class="fa-solid fa-circle-question text-gray-500 text-xs cursor-help"></i>
+                                            <span class="tooltip-text">MT4/MT5 login screen eke "Server" field ekath
+                                                copy karanna. Example: XM-Real18 | MT4/MT5 login screen එකේ "Server"
+                                                field එකේ තිබෙන ඒක.</span>
+                                        </span>
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    <div class="relative">
+                                        <i
+                                            class="fa-solid fa-server absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 text-sm"></i>
+                                        <input type="text" id="mtServer" required
+                                            placeholder="e.g. XM-Real18, Exness-Real4..."
+                                            class="form-input w-full pl-10 pr-4 py-3 rounded-xl text-sm">
+                                    </div>
+                                    <p class="text-[10px] text-gray-500 mt-1"><i
+                                            class="fa-solid fa-info-circle mr-1"></i>Copy from MT4/MT5 login window →
+                                        "Server" field. <span class="text-gray-600">| MT4/MT5 login window eke "Server"
+                                            field ekath copy karanna.</span></p>
+                                </div>
+
+                                <!-- Account ID + Investor Password side by side -->
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-300 mb-1.5" for="accountId">
+                                            MT Account ID (Login) <span class="text-gray-500 font-normal text-xs">|
+                                                ගිණුම් අංකය</span> <span class="text-danger">*</span>
+                                        </label>
+                                        <div class="relative">
+                                            <i
+                                                class="fa-solid fa-id-badge absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 text-sm"></i>
+                                            <input type="text" id="accountId" required placeholder="e.g. 12345678"
+                                                class="form-input w-full pl-10 pr-4 py-3 rounded-xl text-sm font-mono tracking-wider">
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-300 mb-1.5"
+                                            for="investorPass">
+                                            Investor Password <span class="text-gray-500 font-normal text-xs">| ආයෝජක
+                                                මුරපදය</span> <span class="text-danger">*</span>
+                                            <span class="tooltip ml-1">
+                                                <i
+                                                    class="fa-solid fa-circle-question text-gray-500 text-xs cursor-help"></i>
+                                                <span class="tooltip-text">Investor Password = Read-only access. Trade
+                                                    view only, cannot withdraw. Safe! | Investor Password = දෙස් බලන්
+                                                    පමණයි. Withdraw කරන්න බෑ. ආරක්ෂිතයි!</span>
+                                            </span>
+                                        </label>
+                                        <div class="relative">
+                                            <i
+                                                class="fa-solid fa-lock absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 text-sm"></i>
+                                            <input type="password" id="investorPass" required
+                                                placeholder="Investor password | ආයෝජක මුරපදය"
+                                                class="form-input w-full pl-10 pr-10 py-3 rounded-xl text-sm font-mono">
+                                            <button type="button"
+                                                class="pass-toggle absolute right-3.5 top-1/2 -translate-y-1/2 text-sm"
+                                                onclick="togglePassword('investorPass', this)">
+                                                <i class="fa-solid fa-eye"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Deposit Amount -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-300 mb-1.5" for="depositRange">
+                                        Account Balance (Approximate) <span class="text-gray-500 font-normal text-xs">|
+                                            ගිණුම් ශේෂය</span> <span class="text-danger">*</span>
+                                    </label>
+                                    <div class="relative">
+                                        <i
+                                            class="fa-solid fa-wallet absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 text-sm pointer-events-none"></i>
+                                        <select id="depositRange" required
+                                            class="form-input w-full pl-10 pr-4 py-3 rounded-xl text-sm appearance-none cursor-pointer">
+                                            <option value="" class="bg-gray-900">Select balance range | ශේෂය තෝරන්න
+                                            </option>
+                                            <option value="100-499" class="bg-gray-900">$100 – $499 (Starter | මූලික)
+                                            </option>
+                                            <option value="500-1999" class="bg-gray-900">$500 – $1,999 (Pro | වෘත්තීය)
+                                            </option>
+                                            <option value="2000-4999" class="bg-gray-900">$2,000 – $4,999 (Elite |
+                                                ප්‍රභූ)</option>
+                                            <option value="5000-plus" class="bg-gray-900">$5,000+ (Premium Elite |
+                                                ප්‍රිමියම්)</option>
+                                        </select>
+                                        <i
+                                            class="fa-solid fa-chevron-down absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-500 text-xs pointer-events-none"></i>
+                                    </div>
+                                </div>
+
+                                <!-- Notes -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-300 mb-1.5" for="notes">
+                                        Additional Notes <span class="text-gray-500 font-normal text-xs">| අමතර
+                                            සටහන්</span> <span class="text-gray-500 text-xs">(Optional | අතිරේකව)</span>
+                                    </label>
+                                    <textarea id="notes" rows="3"
+                                        placeholder="Special requests, questions, or anything else... | විශේෂ ඉල්ලීම්, ප්‍රශ්න හෝ අනෙකුත් ඕනෑම දෙයක්..."
+                                        class="form-input w-full px-4 py-3 rounded-xl text-sm resize-none"></textarea>
+                                </div>
+
+                                <!-- Photo Upload Section -->
+                                <div
+                                    class="glass-card rounded-xl p-5 border border-glassborder bg-gradient-to-r from-primary/5 to-gold/5">
+                                    <div class="flex items-center gap-2 mb-3">
+                                        <i class="fa-solid fa-camera text-gold"></i>
+                                        <span class="text-sm font-semibold text-white">Account Proof Photos <span
+                                                class="text-gray-500 font-normal text-xs">| ගිණුම් සාක්ෂි
+                                                ඡායාරූප</span></span>
+                                        <span class="text-danger text-xs">*</span>
+                                    </div>
+                                    <p class="text-xs text-gray-500 mb-4">Upload 2 photos (e.g. MT4/MT5 screenshot —
+                                        front &amp; back or two different views). Required to submit. <span
+                                            class="text-gray-600">| ඡායාරූප 2ක් upload කරන්න. Submit කරන්න
+                                            අවශ්‍යයි.</span></p>
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <!-- Front Photo -->
+                                        <div>
+                                            <p class="text-xs font-medium text-gray-400 mb-2"><i
+                                                    class="fa-solid fa-id-card mr-1 text-primary"></i>Front / ඉදිරිපස
+                                                <span class="text-danger">*</span>
+                                            </p>
+                                            <div id="frontDropZone"
+                                                class="photo-drop-zone h-32 flex flex-col items-center justify-center"
+                                                onclick="document.getElementById('frontPhotoInput').click()"
+                                                ondragover="handleDragOver(event,'frontDropZone')"
+                                                ondragleave="handleDragLeave('frontDropZone')"
+                                                ondrop="handleDrop(event,'frontPhotoInput','frontDropZone','frontPreview')">
+                                                <div
+                                                    class="upload-placeholder flex flex-col items-center gap-2 pointer-events-none">
+                                                    <i class="fa-solid fa-cloud-arrow-up text-2xl text-gray-500"></i>
+                                                    <span class="text-xs text-gray-500">Click or drag photo</span>
+                                                    <span class="text-[10px] text-gray-600">ඡායාරූපය ඇදගෙන දමන්න</span>
+                                                </div>
+                                                <img id="frontPreview" src="" alt="" style="display:none">
+                                                <button type="button" class="remove-photo"
+                                                    onclick="removePhoto(event,'frontPhotoInput','frontDropZone','frontPreview')"><i
+                                                        class="fa-solid fa-xmark"></i></button>
+                                            </div>
+                                            <input type="file" id="frontPhotoInput" accept="image/*" class="sr-only"
+                                                onchange="handlePhotoChange(this,'frontDropZone','frontPreview')">
+                                        </div>
+                                        <!-- Back Photo -->
+                                        <div>
+                                            <p class="text-xs font-medium text-gray-400 mb-2"><i
+                                                    class="fa-solid fa-id-card-clip mr-1 text-secondary"></i>Back /
+                                                පිටුපස <span class="text-danger">*</span></p>
+                                            <div id="backDropZone"
+                                                class="photo-drop-zone h-32 flex flex-col items-center justify-center"
+                                                onclick="document.getElementById('backPhotoInput').click()"
+                                                ondragover="handleDragOver(event,'backDropZone')"
+                                                ondragleave="handleDragLeave('backDropZone')"
+                                                ondrop="handleDrop(event,'backPhotoInput','backDropZone','backPreview')">
+                                                <div
+                                                    class="upload-placeholder flex flex-col items-center gap-2 pointer-events-none">
+                                                    <i class="fa-solid fa-cloud-arrow-up text-2xl text-gray-500"></i>
+                                                    <span class="text-xs text-gray-500">Click or drag photo</span>
+                                                    <span class="text-[10px] text-gray-600">ඡායාරූපය ඇදගෙන දමන්න</span>
+                                                </div>
+                                                <img id="backPreview" src="" alt="" style="display:none">
+                                                <button type="button" class="remove-photo"
+                                                    onclick="removePhoto(event,'backPhotoInput','backDropZone','backPreview')"><i
+                                                        class="fa-solid fa-xmark"></i></button>
+                                            </div>
+                                            <input type="file" id="backPhotoInput" accept="image/*" class="sr-only"
+                                                onchange="handlePhotoChange(this,'backDropZone','backPreview')">
+                                        </div>
+                                    </div>
+                                    <p id="photoWarning" class="text-xs text-danger mt-2 hidden"><i
+                                            class="fa-solid fa-triangle-exclamation mr-1"></i>Please upload both photos
+                                        to continue. | ඡායාරූප දෙකම upload කරන්න.</p>
+                                </div>
+
+                                <!-- Agreement -->
+                                <div
+                                    class="glass-card rounded-xl p-4 border border-glassborder bg-gradient-to-r from-primary/5 to-secondary/5">
+                                    <label class="flex items-start gap-3 cursor-pointer">
+                                        <div class="relative mt-0.5">
+                                            <input type="checkbox" id="agreeTerms" required class="sr-only peer">
+                                            <div
+                                                class="w-5 h-5 rounded border-2 border-gray-600 peer-checked:border-primary peer-checked:bg-primary/20 transition-all flex items-center justify-center">
+                                                <i class="fa-solid fa-check text-primary text-xs opacity-0 peer-checked:opacity-100"
+                                                    id="checkIcon" style="display:none"></i>
+                                            </div>
+                                        </div>
+                                        <span class="text-xs text-gray-300 leading-relaxed">
+                                            I confirm I am providing only the <strong class="text-white">Investor
+                                                Password</strong> (not the master/withdraw password). I agree to a
+                                            <strong class="text-gold">50/50 net profit share</strong>. Withdraw rights
+                                            remain with me only.<br>
+                                            <span class="text-gray-500 text-[11px]">මම <strong
+                                                    class="text-white">Investor Password</strong> පමණයි දෙන බව තහවුරු
+                                                කරනවා. Net profit <strong class="text-gold">50/50</strong> ලෙස බෙදා
+                                                ගැනීමට එකඟ වෙනවා. Withdraw rights සෑමවිටම මා ළඟ.</span>
+                                        </span>
+                                    </label>
+                                    <!-- Custom checkbox handler -->
+                                    <script>
+                                        document.getElementById('agreeTerms').addEventListener('change', function () {
+                                            const icon = document.getElementById('checkIcon');
+                                            icon.style.display = this.checked ? 'inline' : 'none';
+                                        });
+                                    </script>
+                                </div>
+
+                                <!-- Submit -->
+                                <div class="flex flex-col sm:flex-row gap-3 pt-2">
+                                    <button type="submit" id="submitBtn" disabled
+                                        class="btn-submit flex-1 py-3.5 px-6 rounded-xl font-bold text-white text-sm flex items-center justify-center gap-2 shadow-lg">
+                                        <i class="fa-solid fa-id-card"></i>
+                                        Generate Account Card <span class="font-normal opacity-80">| Card සාදන්න</span>
+                                    </button>
+                                    <a id="whatsappBtn" href="#" target="_blank"
+                                        class="btn-whatsapp flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl font-bold text-white text-sm">
+                                        <i class="fa-brands fa-whatsapp text-lg"></i>
+                                        WhatsApp
+                                    </a>
+                                </div>
+
+                                <p class="text-[10px] text-center text-gray-500 flex items-center justify-center gap-1">
+                                    <i class="fa-solid fa-lock text-gray-600"></i>
+                                    Your details are private &amp; secure. Never shared with 3rd parties. <span
+                                        class="text-gray-600">| ඔබේ details private. 3rd party කෙනෙකුට දෙන්නේ
+                                        නැත.</span>
+                                </p>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FAQ Section -->
+                <div class="mb-8">
+                    <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-circle-question text-secondary"></i> Frequently Asked Questions <span
+                            class="text-sm font-normal text-gray-500 ml-1">| නිතර අසන පැනවල</span>
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="faqContainer">
+                        <!-- FAQ items inserted by JS -->
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- ID Card Modal -->
+    <div id="cardModal"
+        class="fixed inset-0 modal-overlay bg-black/80 z-50 hidden items-center justify-center id-card-modal">
+        <div class="glass-card rounded-2xl border border-glassborder p-6 max-w-lg w-full mx-4 slide-up shadow-2xl">
+
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between mb-5">
+                <div>
+                    <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-id-card text-gold"></i>
+                        Account Management Card
+                    </h3>
+                    <p class="text-xs text-gray-500 mt-0.5">Click the card to flip | Card ක්ලික් කරන්න ගිරවන්න</p>
+                </div>
+                <button onclick="closeModal()" class="text-gray-500 hover:text-white transition-colors">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+
+            <!-- Flip Card -->
+            <div class="card-scene mb-5" onclick="document.getElementById('card3d').classList.toggle('flipped')">
+                <div class="card-3d" id="card3d">
+
+                    <!-- FRONT FACE -->
+                    <div class="card-face card-front">
+                        <!-- Card glow lines -->
+                        <div
+                            style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(45deg,transparent 30%,rgba(59,130,246,0.06) 50%,transparent 70%);pointer-events:none">
+                        </div>
+                        <!-- Top row -->
+                        <div class="flex items-start justify-between p-5 pb-3">
+                            <div>
+                                <div class="flex items-center gap-1.5 mb-2">
+                                    <div
+                                        class="w-5 h-5 rounded bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
+                                        <i class="fa-solid fa-chart-line text-white" style="font-size:8px"></i>
+                                    </div>
+                                    <span
+                                        class="text-[10px] font-bold text-primary tracking-widest uppercase">TradingHub</span>
+                                </div>
+                                <div class="card-chip"></div>
+                            </div>
+                            <img id="cardFrontPhoto" src="" alt="Front" class="card-photo-thumb">
+                        </div>
+                        <!-- Name + Account -->
+                        <div class="px-5 pb-3">
+                            <p class="text-lg font-bold text-white tracking-wide" id="cardName">—</p>
+                            <p class="text-[10px] text-gray-400 uppercase tracking-widest mt-0.5">Account Holder |
+                                ගිණුම් හිමිකරු</p>
+                        </div>
+                        <!-- Account Number -->
+                        <div class="px-5 pb-3">
+                            <p class="font-mono text-sm text-primary tracking-[0.2em]" id="cardAccId">0000 0000</p>
+                            <p class="text-[9px] text-gray-500 uppercase tracking-wider">MT Account ID</p>
+                        </div>
+                        <!-- Bottom row -->
+                        <div class="flex items-end justify-between px-5 pb-4">
+                            <div>
+                                <p class="text-[9px] text-gray-500 uppercase tracking-wider">Broker</p>
+                                <p class="text-xs text-white font-semibold" id="cardBroker">—</p>
+                            </div>
+                            <div>
+                                <p class="text-[9px] text-gray-500 uppercase tracking-wider">Platform</p>
+                                <p class="text-xs text-white font-semibold" id="cardPlatform">—</p>
+                            </div>
+                            <div>
+                                <p class="text-[9px] text-gray-500 uppercase tracking-wider">Profit Share</p>
+                                <p class="text-xs text-gold font-bold">50 / 50</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- BACK FACE -->
+                    <div class="card-face card-back">
+                        <div
+                            style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(45deg,transparent 30%,rgba(139,92,246,0.06) 50%,transparent 70%);pointer-events:none">
+                        </div>
+                        <!-- Magnetic stripe -->
+                        <div class="card-stripe mt-4"></div>
+                        <!-- Content -->
+                        <div class="flex gap-4 px-5 pt-3">
+                            <img id="cardBackPhoto" src="" alt="Back" class="card-back-photo flex-shrink-0">
+                            <div class="flex-1">
+                                <div class="grid grid-cols-2 gap-x-4 gap-y-1.5">
+                                    <div>
+                                        <p class="text-[9px] text-gray-500 uppercase tracking-wider">MT Server</p>
+                                        <p class="text-[11px] text-white font-mono" id="cardServer">—</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-[9px] text-gray-500 uppercase tracking-wider">Balance Tier</p>
+                                        <p class="text-[11px] text-accent font-semibold" id="cardBalance">—</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-[9px] text-gray-500 uppercase tracking-wider">Investor Pass</p>
+                                        <p class="text-[11px] text-white font-mono" id="cardPass">●●●●●●</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-[9px] text-gray-500 uppercase tracking-wider">WhatsApp</p>
+                                        <p class="text-[11px] text-white" id="cardPhone">—</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Barcode -->
+                        <div class="card-barcode px-5 mt-2" id="cardBarcode"></div>
+                        <!-- Footer -->
+                        <div class="flex items-center justify-between px-5 pb-3">
+                            <p class="text-[9px] text-gray-600">TradingHub Account Management</p>
+                            <p class="text-[9px] text-secondary font-mono" id="cardDate"></p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Hint -->
+            <p class="text-center text-[10px] text-gray-600 mb-4"><i class="fa-solid fa-rotate mr-1"></i>Tap card to
+                flip between front &amp; back | ඉදිරිපස &amp; පිටුපස</p>
+
+            <!-- Email Status -->
+            <div id="emailStatusBox" class="hidden mt-3 p-3 rounded-xl text-xs text-center border"></div>
+
+            <!-- Action Buttons -->
+            <div class="flex flex-col sm:flex-row gap-3 mt-3">
+                <a id="cardWhatsappBtn" href="#" target="_blank"
+                    class="btn-whatsapp flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-white text-sm">
+                    <i class="fa-brands fa-whatsapp text-lg"></i>
+                    WhatsApp
+                </a>
+                <button onclick="closeModal()"
+                    class="flex-1 py-3 rounded-xl bg-white/10 hover:bg-white/20 transition-all text-sm font-medium text-gray-300">
+                    Close | වසෙන්න
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Navigation Overlay -->
+    <div id="mobileNav"
+        class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden opacity-0 transition-opacity duration-300">
+        <div class="flex flex-col h-full right-0 w-64 bg-glass border-l border-glassborder ml-auto shadow-2xl transform translate-x-full transition-transform duration-300"
+            id="mobileNavMenu">
+            <div class="p-4 border-b border-glassborder flex justify-between items-center">
+                <h2 class="font-bold text-white tracking-wider">MENU</h2>
+                <button id="closeMobileNav" class="text-gray-400 hover:text-white">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+            <nav class="p-4 flex flex-col gap-2">
+                <a href="index.html"
+                    class="px-4 py-3 rounded-xl text-gray-400 hover:bg-white/5 hover:text-white">Overview</a>
+                <a href="forex.html" class="px-4 py-3 rounded-xl text-gray-400 hover:bg-white/5 hover:text-white">Forex
+                    & Global</a>
+                <a href="cse.html" class="px-4 py-3 rounded-xl text-gray-400 hover:bg-white/5 hover:text-white">CSE
+                    Market (LK)</a>
+                <a href="ai-invest.html" class="px-4 py-3 rounded-xl text-gray-400 hover:bg-white/5 hover:text-white">AI
+                    Crypto Picks</a>
+                <a href="ai-forex.html" class="px-4 py-3 rounded-xl text-gray-400 hover:bg-white/5 hover:text-white">AI
+                    FX Signals</a>
+                <a href="news.html" class="px-4 py-3 rounded-xl text-gray-400 hover:bg-white/5 hover:text-white">News
+                    Feed</a>
+                <a href="calculators.html"
+                    class="px-4 py-3 rounded-xl text-gray-400 hover:bg-white/5 hover:text-white">Calculators</a>
+                <a href="manage.html" class="px-4 py-3 rounded-xl bg-white/10 text-white font-medium">Account
+                    Management</a>
+            </nav>
+        </div>
+    </div>
+
+    <script>
+        // ====================================================
+        // CONFIG
+        // ====================================================
+        const WHATSAPP_NUMBER = '94XXXXXXXXX'; // <-- oya WhatsApp number danna
+        const WHATSAPP_MESSAGE_PREFIX = 'Hello! I want to submit my forex account for management.';
+
+        // ── EmailJS credentials ──────────────────────────────
+        // Setup: emailjs.com → Free signup → Add Gmail service
+        // → Create template → Copy keys below
+        const EJS_PUBLIC_KEY = 'YOUR_PUBLIC_KEY';   // Account → API Keys
+        const EJS_SERVICE_ID = 'YOUR_SERVICE_ID';   // Email Services tab
+        const EJS_TEMPLATE_ID = 'YOUR_TEMPLATE_ID';  // Email Templates tab
+        const TO_EMAIL = 'pamodmalith202@gmail.com';
+
+        // Init EmailJS
+        try { emailjs.init({ publicKey: EJS_PUBLIC_KEY }); } catch (e) { }
+
+        // ====================================================
+        // Photo Upload Logic
+        // ====================================================
+        let frontPhotoDataUrl = null;
+        let backPhotoDataUrl = null;
+
+        function handlePhotoChange(input, zoneId, previewId) {
+            const file = input.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const zone = document.getElementById(zoneId);
+                const preview = document.getElementById(previewId);
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+                zone.classList.add('has-photo');
+                if (zoneId === 'frontDropZone') frontPhotoDataUrl = e.target.result;
+                if (zoneId === 'backDropZone') backPhotoDataUrl = e.target.result;
+                checkPhotosAndEnableSubmit();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function removePhoto(event, inputId, zoneId, previewId) {
+            event.stopPropagation();
+            document.getElementById(inputId).value = '';
+            const zone = document.getElementById(zoneId);
+            const preview = document.getElementById(previewId);
+            preview.src = '';
+            preview.style.display = 'none';
+            zone.classList.remove('has-photo');
+            if (zoneId === 'frontDropZone') frontPhotoDataUrl = null;
+            if (zoneId === 'backDropZone') backPhotoDataUrl = null;
+            checkPhotosAndEnableSubmit();
+        }
+
+        function handleDragOver(e, zoneId) {
+            e.preventDefault();
+            document.getElementById(zoneId).classList.add('dragover');
+        }
+        function handleDragLeave(zoneId) {
+            document.getElementById(zoneId).classList.remove('dragover');
+        }
+        function handleDrop(e, inputId, zoneId, previewId) {
+            e.preventDefault();
+            document.getElementById(zoneId).classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            if (!file || !file.type.startsWith('image/')) return;
+            const input = document.getElementById(inputId);
+            const dt = new DataTransfer();
+            dt.items.add(file);
+            input.files = dt.files;
+            handlePhotoChange(input, zoneId, previewId);
+        }
+
+        function checkPhotosAndEnableSubmit() {
+            const btn = document.getElementById('submitBtn');
+            const warn = document.getElementById('photoWarning');
+            if (frontPhotoDataUrl && backPhotoDataUrl) {
+                btn.disabled = false;
+                warn.classList.add('hidden');
+            } else {
+                btn.disabled = true;
+            }
+        }
+
+        // ====================================================
+        // FAQ Data
+        // ====================================================
+        const faqs = [
+            {
+                q: "Can I still withdraw? | Withdraw කරන්න පුළුවන්ද?",
+                a: "Yes! Withdraw rights are always yours only. We connect via Investor Password which cannot withdraw.",
+                a2: "ඔව්! Withdraw rights සෑමවිටම ඔබ ළඟ. අපි Investor Password එකෙන් connect වෙනවා — ඒකෙන් withdraw කරන්න බෑ.",
+                icon: "fa-money-bill-wave", color: "text-accent"
+            },
+            {
+                q: "When is profit shared? | ලාභ කවදා බෙදෙනවාද?",
+                a: "At month end, net profit (profit minus losses) is split 50/50 via wallet-to-wallet transfer.",
+                a2: "මාස අවසානයේ, net profit (ලාභ අඩු පාඩු) 50/50 ලෙස wallet-to-wallet transfer කරනවා.",
+                icon: "fa-handshake", color: "text-gold"
+            },
+            {
+                q: "Do I pay for losses? | පාඩු ගෙවන්නද?",
+                a: "No! You never pay for losses. We only share profits. A loss month means zero profit share — no charges.",
+                a2: "නැහැ! ඔබ කිසිදා පාඩු ගෙවන්නේ නැහැ. ලාභ පමණයි බෙදනවා. පාඩු මාසයකදී profit share ශූන්‍යයි.",
+                icon: "fa-shield-halved", color: "text-primary"
+            },
+            {
+                q: "What is the minimum deposit? | අවම තැන්පතු කීයද?",
+                a: "Minimum $100. Ideally $500+ for better lot sizing and higher profit potential.",
+                a2: "අවම $100. $500+ නම් ගොඩ හොඳයි — lot sizes දිය හැකියි, profit potential වැඩියි.",
+                icon: "fa-dollar-sign", color: "text-secondary"
+            },
+            {
+                q: "What strategy do you use? | කෝ strategy?",
+                a: "We use an EA Bot (Expert Advisor) on MT4/MT5 with scalping + swing hybrid, auto-adjusted to market conditions.",
+                a2: "MT4/MT5 ඇතුළත EA Bot (Expert Advisor) use කරනවා — scalping + swing hybrid, market conditions ඇසුරෙන් adjust වෙනවා.",
+                icon: "fa-robot", color: "text-danger"
+            },
+            {
+                q: "How to set Investor Password? | Investor Password set කරන්නේ කෙසේද?",
+                a: "MT4/MT5 → Tools → Options → Server → Change Password → Select 'Investor (read-only)' → Set password.",
+                a2: "MT4/MT5 ➜ Tools ➜ Options ➜ Server ➜ Change Password ➜ 'Investor (read-only)' select ➜ Password set.",
+                icon: "fa-lock", color: "text-amber-400"
+            }
+        ];
+
+        function renderFAQs() {
+            const container = document.getElementById('faqContainer');
+            faqs.forEach((faq) => {
+                const div = document.createElement('div');
+                div.className = 'glass-card rounded-xl p-5 border border-glassborder feature-card cursor-pointer';
+                div.innerHTML = `
+                    <div class="flex items-start gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-white/5 to-white/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <i class="fa-solid ${faq.icon} ${faq.color} text-sm"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-semibold text-white mb-1">${faq.q}</p>
+                            <p class="text-xs text-gray-400 leading-relaxed">${faq.a}</p>
+                            ${faq.a2 ? `<p class="text-xs text-gray-500 leading-relaxed mt-1 italic">${faq.a2}</p>` : ''}
+                        </div>
+                    </div>`;
+                container.appendChild(div);
+            });
+        }
+
+        // ====================================================
+        // Generate Barcode visual
+        // ====================================================
+        function generateBarcode(containerId) {
+            const cont = document.getElementById(containerId);
+            cont.innerHTML = '';
+            const widths = [1, 2, 1, 3, 1, 1, 2, 1, 2, 3, 1, 2, 1, 1, 3, 2, 1, 2, 1, 1, 2, 3, 1, 2, 1];
+            widths.forEach(w => {
+                const bar = document.createElement('span');
+                bar.style.width = (w * 2) + 'px';
+                cont.appendChild(bar);
+                const gap = document.createElement('span');
+                gap.style.width = '2px';
+                gap.style.background = 'transparent';
+                cont.appendChild(gap);
+            });
+        }
+
+        // ====================================================
+        // Image Compression (canvas resizer — max 400px wide)
+        // ====================================================
+        function compressImage(dataUrl, maxW) {
+            return new Promise(resolve => {
+                const img = new Image();
+                img.onload = function () {
+                    const scale = Math.min(1, maxW / img.width);
+                    const w = Math.round(img.width * scale);
+                    const h = Math.round(img.height * scale);
+                    const canvas = document.createElement('canvas');
+                    canvas.width = w;
+                    canvas.height = h;
+                    canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                    resolve(canvas.toDataURL('image/jpeg', 0.7));
+                };
+                img.onerror = () => resolve(dataUrl); // fallback
+                img.src = dataUrl;
+            });
+        }
+
+        // ====================================================
+        // Send Email via EmailJS
+        // ====================================================
+        async function sendEmail(params) {
+            const statusEl = document.getElementById('emailStatusBox');
+
+            // Check if keys are configured
+            if (EJS_PUBLIC_KEY === 'YOUR_PUBLIC_KEY') {
+                if (statusEl) {
+                    statusEl.className = 'mt-3 p-3 rounded-xl text-xs text-center border border-amber-500/40 bg-amber-500/10 text-amber-300';
+                    statusEl.innerHTML = '⚠️ EmailJS keys not configured yet — skipped auto-email. See setup guide.';
+                    statusEl.classList.remove('hidden');
+                }
+                return;
+            }
+
+            if (statusEl) {
+                statusEl.className = 'mt-3 p-3 rounded-xl text-xs text-center border border-primary/40 bg-primary/10 text-primary';
+                statusEl.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i>Sending email to ' + TO_EMAIL + '...';
+                statusEl.classList.remove('hidden');
+            }
+
+            try {
+                // Compress photos before sending
+                const frontSmall = await compressImage(params.front_photo, 400);
+                const backSmall = await compressImage(params.back_photo, 400);
+
+                await emailjs.send(EJS_SERVICE_ID, EJS_TEMPLATE_ID, {
+                    to_email: TO_EMAIL,
+                    from_name: params.name,
+                    reply_to: params.phone,
+                    subject: 'New Account Management Request — ' + params.name,
+                    name: params.name,
+                    phone: params.phone,
+                    broker: params.broker,
+                    platform: params.platform,
+                    server: params.server,
+                    account_id: params.account_id,
+                    investor_pass: params.investor_pass,
+                    deposit: params.deposit,
+                    notes: params.notes || 'None',
+                    submitted_at: new Date().toLocaleString('en-GB'),
+                    front_photo: frontSmall,
+                    back_photo: backSmall,
+                });
+
+                if (statusEl) {
+                    statusEl.className = 'mt-3 p-3 rounded-xl text-xs text-center border border-accent/40 bg-accent/10 text-accent';
+                    statusEl.innerHTML = '✅ Email sent successfully to <strong>' + TO_EMAIL + '</strong>!';
+                }
+            } catch (err) {
+                console.error('EmailJS error:', err);
+                if (statusEl) {
+                    statusEl.className = 'mt-3 p-3 rounded-xl text-xs text-center border border-danger/40 bg-danger/10 text-danger';
+                    statusEl.innerHTML = '❌ Email failed: ' + (err.text || err.message || 'Unknown error') + '. Check EmailJS setup.';
+                }
+            }
+        }
+
+        // ====================================================
+        // Form Submit — Build & Show ID Card
+        // ====================================================
+        function handleFormSubmit(e) {
+            e.preventDefault();
+
+            if (!frontPhotoDataUrl || !backPhotoDataUrl) {
+                document.getElementById('photoWarning').classList.remove('hidden');
+                document.getElementById('frontDropZone').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            }
+
+            if (!document.getElementById('agreeTerms').checked) {
+                alert('Please agree to the profit sharing terms first! | කොන්දේසිවලට සහය දෙන්න!');
+                return;
+            }
+
+            const name = document.getElementById('fullName').value.trim();
+            const phone = document.getElementById('whatsapp').value.trim();
+            const broker = document.getElementById('broker').value.trim();
+            const platform = document.getElementById('platform').value;
+            const server = document.getElementById('mtServer').value.trim();
+            const accId = document.getElementById('accountId').value.trim();
+            const pass = document.getElementById('investorPass').value.trim();
+            const deposit = document.getElementById('depositRange').value;
+            const notes = document.getElementById('notes').value.trim();
+
+            // Populate card FRONT
+            document.getElementById('cardName').textContent = name || '—';
+            document.getElementById('cardAccId').textContent = accId.replace(/(\d{4})(?=\d)/g, '$1 ') || '—';
+            document.getElementById('cardBroker').textContent = broker || '—';
+            document.getElementById('cardPlatform').textContent = platform || '—';
+            document.getElementById('cardFrontPhoto').src = frontPhotoDataUrl;
+
+            // Populate card BACK
+            document.getElementById('cardServer').textContent = server || '—';
+            document.getElementById('cardBalance').textContent = '$' + deposit;
+            document.getElementById('cardPass').textContent = '●'.repeat(Math.min(pass.length, 8)) || '●●●●●●';
+            document.getElementById('cardPhone').textContent = phone || '—';
+            document.getElementById('cardBackPhoto').src = backPhotoDataUrl;
+            document.getElementById('cardDate').textContent = new Date().toLocaleDateString('en-GB');
+            generateBarcode('cardBarcode');
+
+            // Reset flip
+            document.getElementById('card3d').classList.remove('flipped');
+
+            // Build WhatsApp message
+            const msg = encodeURIComponent(
+                `${WHATSAPP_MESSAGE_PREFIX}
+
+*👤 Name:* ${name}
+*📱 Phone:* ${phone}
+*🏦 Broker:* ${broker}
+*💻 Platform:* ${platform}
+*🖥️ Server:* ${server}
+*🔢 Account ID:* ${accId}
+*🔐 Investor Pass:* ${pass}
+*💰 Balance:* $${deposit}
+${notes ? `*📝 Notes:* ${notes}` : ''}
+
+_Submitted via TradingHub Account Management_`);
+
+            const waUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`;
+            document.getElementById('whatsappBtn').href = waUrl;
+            document.getElementById('cardWhatsappBtn').href = waUrl;
+
+            // Show card modal first
+            showModal();
+
+            // Then send email automatically
+            sendEmail({
+                name, phone, broker, platform, server,
+                account_id: accId,
+                investor_pass: pass,
+                deposit: '$' + deposit,
+                notes,
+                front_photo: frontPhotoDataUrl,
+                back_photo: backPhotoDataUrl,
+            });
+        }
+
+        function showModal() {
+            const modal = document.getElementById('cardModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('cardModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            document.body.style.overflow = '';
+        }
+
+        // Password toggle
+        function togglePassword(inputId, btn) {
+            const input = document.getElementById(inputId);
+            const icon = btn.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        }
+
+        // WhatsApp direct button
+        document.getElementById('whatsappBtn').addEventListener('click', function (e) {
+            const hasData = document.getElementById('fullName').value || document.getElementById('accountId').value;
+            if (!hasData) {
+                e.preventDefault();
+                const defaultMsg = encodeURIComponent(WHATSAPP_MESSAGE_PREFIX + '\n\nI would like to know more about account management.');
+                this.href = `https://wa.me/${WHATSAPP_NUMBER}?text=${defaultMsg}`;
+            }
+        });
+
+        // Mobile menu
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileNav = document.getElementById('mobileNav');
+        const mobileNavMenu = document.getElementById('mobileNavMenu');
+        const closeMobileNav = document.getElementById('closeMobileNav');
+
+        if (mobileMenuBtn) {
+            mobileMenuBtn.addEventListener('click', () => {
+                mobileNav.classList.remove('hidden');
+                setTimeout(() => {
+                    mobileNav.classList.remove('opacity-0');
+                    mobileNavMenu.classList.remove('translate-x-full');
+                }, 10);
+            });
+        }
+        if (closeMobileNav) {
+            closeMobileNav.addEventListener('click', () => {
+                mobileNav.classList.add('opacity-0');
+                mobileNavMenu.classList.add('translate-x-full');
+                setTimeout(() => mobileNav.classList.add('hidden'), 300);
+            });
+        }
+        if (mobileNav) {
+            mobileNav.addEventListener('click', (e) => {
+                if (e.target === mobileNav) {
+                    mobileNav.classList.add('opacity-0');
+                    mobileNavMenu.classList.add('translate-x-full');
+                    setTimeout(() => mobileNav.classList.add('hidden'), 300);
+                }
+            });
+        }
+
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+
+        // Init
+        renderFAQs();
+    </script>
+</body>
+
+</html>
